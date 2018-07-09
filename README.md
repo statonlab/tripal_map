@@ -26,8 +26,7 @@ tables from a PostgreSQL database.
 
 # Requirements
 * Drupal 7.x
-* Tripal 7.x-2.x 
-This module does not currently support Tripal 3.
+* Tripal 7.x-2.x or Tripal 7.x-3.x
 
 ## Install Drupal
 
@@ -35,8 +34,8 @@ Please refer to this [page](http://tripal.info/tutorials/v2.x/installation/drupa
 
 ## Install Tripal 
 
-Please refer to this [page](https://https://www.drupal.org/project/tripal) and this
-[page] (http://tripal.info/tutorials/v2.x/installation/tripal) to install Tripal v2 or
+Please refer to this [page](https://https://www.drupal.org/project/tripal) and 
+[here] (http://tripal.info/tutorials/v2.x/installation/tripal) to install Tripal v2 or
 [here] (http://tripal.info/tutorials/v3.x/installation/tripal) to install Tripal v3.
 
 
@@ -91,9 +90,31 @@ the materialized views.
 
 # Configuration
 
-For use with Tripal version 3, TripalMap offers two fields that can be added and configured:
-## MapViewer Overview
+For Tripal version 3, TripalMap offers two fields that can be added and configured, the MapViewer overview field and the MapViewer Marker Map Positions field:
+
+## MapViewer Overview 
+
+To add the Map Overview field to the Map page, visit the Structure option in the Drupal Administration and select the Tripal Content Types options. Select the Map content type:
+
+![Map Tripal Content Type](images/MapViewer_Field_Map_Tripal_Content_Type.png)
+
+In the Map content type page, add a new field by specifying the MapViewer Overview field type:
+
+![MapViewer Overview Field Map] (MapViewer_Overview_Field_Map_Tripal_Content_Type.png)
+
+Create the MapViewer Overview field by completing the settings form as specified here:
+
+![MapViewer Overview Field] (MapViewer_Overview_Field.png)
+
 ## MapViewer Marker Map Positions
+
+To add the Marker Map Positions field to the Genetic Marker, Heritable Phenotypic Marker or QTL markers, visit the Structure option in the Drupal Administration and select one of these Tripal Content Types:
+
+![Marker Tripal Content Type](MapViewer_Marker_MapPositions_Field_Marker_Tripal_Content_Types.png)
+
+Add a new MapViewer Marker Map Positions field in one of these marker content type pages and complete the settings form as specified here:
+
+![MapViewer Marker Map Positions](MapViewer_Marker_MapPositions_Field.png)  
 
 
 To configure aspects of TripalMap, visit the Administration page by going to the Tripal
