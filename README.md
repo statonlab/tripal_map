@@ -35,8 +35,8 @@ Please refer to this [page](http://tripal.info/tutorials/v2.x/installation/drupa
 ## Install Tripal 
 
 Please refer to this [page](https://https://www.drupal.org/project/tripal) and 
-[here] (http://tripal.info/tutorials/v2.x/installation/tripal) to install Tripal v2 or
-[here] (http://tripal.info/tutorials/v3.x/installation/tripal) to install Tripal v3.
+[here](http://tripal.info/tutorials/v2.x/installation/tripal) to install Tripal v2 or
+[here](http://tripal.info/tutorials/v3.x/installation/tripal) to install Tripal v3.
 
 
 # Version
@@ -86,8 +86,6 @@ controlled vocabulary (cv) will be something different than 'MAIN'.
 the materialized views. 
 
 
-![Admin Page](images/MapViewer_Admin_Page.png)
-
 # Configuration
 
 For Tripal version 3, TripalMap offers two fields that can be added and configured, the MapViewer overview field and the MapViewer Marker Map Positions field:
@@ -100,25 +98,28 @@ To add the Map Overview field to the Map page, visit the Structure option in the
 
 In the Map content type page, add a new field by specifying the MapViewer Overview field type:
 
-![MapViewer Overview Field Map] (MapViewer_Overview_Field_Map_Tripal_Content_Type.png)
+![MapViewer Overview Field Map](images/MapViewer_Overview_Field_Map_Tripal_Content_Type.png)
 
 Create the MapViewer Overview field by completing the settings form as specified here:
 
-![MapViewer Overview Field] (MapViewer_Overview_Field.png)
+![MapViewer Overview Field](images/MapViewer_Overview_Field.png)
 
 ## MapViewer Marker Map Positions
 
 To add the Marker Map Positions field to the Genetic Marker, Heritable Phenotypic Marker or QTL markers, visit the Structure option in the Drupal Administration and select one of these Tripal Content Types:
 
-![Marker Tripal Content Type](MapViewer_Marker_MapPositions_Field_Marker_Tripal_Content_Types.png)
+![Marker Tripal Content Type](images/MapViewer_Marker_MapPositions_Field_Marker_Tripal_Content_Types.png)
 
 Add a new MapViewer Marker Map Positions field in one of these marker content type pages and complete the settings form as specified here:
 
-![MapViewer Marker Map Positions](MapViewer_Marker_MapPositions_Field.png)  
+![MapViewer Marker Map Positions](images/MapViewer_Marker_MapPositions_Field.png)  
 
 
 To configure aspects of TripalMap, visit the Administration page by going to the Tripal
 menu, selecting the Extensions option and then choosing MapViewer.
+
+![Admin Page](images/MapViewer_Admin_Page.png)
+
 
 ## General Section
 In the General section, the Tutorial Links manipulate the link values at the top of the MapViewer page. 
