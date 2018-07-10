@@ -490,7 +490,7 @@ function tripal_map_get_tripal_version() {
  *
  * @ingroup tripal_map_includes
  */
-function tripal_map_mapviewer_new_page($featuremap_id, $linkage_group, $genetic_marker_name) {
+function tripal_map_mapviewer_new_page($featuremap_id, $linkage_group = NULL, $genetic_marker_name = NULL) {
 
   // translate escaped forward slash to forward slash char
   $linkage_group = str_replace("_forwardslash_", "/", $linkage_group);
