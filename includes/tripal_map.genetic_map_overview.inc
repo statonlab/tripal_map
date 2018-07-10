@@ -66,7 +66,7 @@ function tripal_map_genetic_map_overview_form($form, &$form_state, $featuremap_i
     '#type' => 'container',
     '#attributes' => array(
      '#collapsible' => FALSE,
-  );
+  ));
 
   // Do not display maps that are in the list of excluded maps
   $exclude_maps = explode(";", variable_get('tripal_map_map_overview_exclude_maps'));
