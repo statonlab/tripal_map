@@ -1,0 +1,26 @@
+
+name = Tripal Map
+description = A genomic map visualization module for Tripal.
+core = 7.x
+project = tripal_map
+package = Tripal Extensions
+
+stylesheets[all][] = theme/css/tripal_map.css
+scripts[] 		   = theme/js/config_mapViewer.js
+scripts[] 		   = theme/js/draw_mapViewer.js
+scripts[] 		   = theme/js/draw_genetic_map_overview.js
+scripts[] 		   = theme/js/draw_correspondence_matrix.js
+scripts[] 		   = theme/js/draw_dotplot.js
+scripts[] 		   = theme/js/tripal_correspondence_matrix.js
+scripts[] 		   = theme/js/tripal_dotplot.js
+scripts[] 		   = theme/js/tripal_genetic_map_overview.js
+scripts[] 		   = theme/js/tripal_mapViewer.js
+scripts[] 		   = theme/js/tripal_map_utils.js
+
+
+; These modules must be enabled before this module can be enabled
+dependencies[] = tripal_core
+dependencies[] = tripal_views
+dependencies[] = tripal_db
+dependencies[] = tripal_cv
+

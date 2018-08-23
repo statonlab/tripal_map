@@ -1,0 +1,195 @@
+
+svg.TripalMap                { font: .9em sans-serif; }
+.TripalMap #popup         	 { color: #3b3b3b; text-shadow: 0 1px 0 #fff; 
+                               font-family: "Lucida Grande","Lucida Sans Unicode",Verdana,sans-serif; }
+.TripalMap a #popup	    	 { text-decoration: underline; color: #0071b3;  }
+.TripalMap a:hover #popup 	 { cursor: pointer !important; color: #0071b3 !important; }
+fieldset.TripalMap           { border: 0px !important; }
+fieldset.TripalMap legend    { background: transparent !important; border: 0px !important; text-indent: 0px !important;    
+                               font-family: "Helvetica Neue",Helvetica,Arial,sans-serif !important; 
+                               line-height: 1.5; font-weight: bold; font-size: 0.929em; }
+
+/* MapViewer User tutorial and instructions */
+#user_instructions.TripalMap 		{ background-color: #f5f5f5; border: 1px solid #e3e3e3; width: 33em;  margin: 2.5em 0 1em 0em; }
+#user_instructions.TripalMap  div	{ display: inline-block; margin-bottom: .4em !important; margin-right: .4em; height: 2em;}
+.TripalMap 
+#change_map_anchor_href div			{ font-size: 1.4em;  font-weight: bold;  padding-right: 1em; margin: 1em 0em .75em .5em;  }
+.TripalMap 
+#change_map_anchor_href div:hover	{ text-decoration:underline; }
+.TripalMap #tutorial,
+.TripalMap #text_tutorial	 		{ font-size: 1.2em; }
+#select_organism.TripalMap a 		{ text-decoration: none; } 
+
+.TripalMap #buttonMapLabel a		{ text-decoration:none; width: 10em; height: 10em; }
+.TripalMap #buttonMapLabel a:hover	{ text-decoration:underline; cursor: pointer; }
+
+/* Buttons */
+.TripalMap .chromosome1-submit-button,
+.TripalMap .chromosome-submit-button,
+.TripalMap .chromosome_mv-submit-button,
+.TripalMap .chromosome_comparison_mv-submit-button { display: inline-block; }
+
+.TripalMap .compare-button, 
+.TripalMap .chromosome2-submit-button, 
+.TripalMap .color-submit-button,
+.TripalMap .color-reset-button,
+.TripalMap .color_mapViewer-submit-button,
+.TripalMap .color_mapViewer-reset-button,
+.TripalMap .color_comparison-submit-button,
+.TripalMap .color_comparison-reset-button,
+.TripalMap .submit-marker-display-state-button,
+.TripalMap .reset-marker-display-state-button,
+.TripalMap .submit_mapViewer-marker-display-state-button,
+.TripalMap .reset_mapViewer-marker-display-state-button,
+.TripalMap .submit_comparison-marker-display-state-button,
+.TripalMap .reset_comparison-marker-display-state-button,
+.TripalMap .submit_comparison-all-button,
+.TripalMap .submit-overview-all-button  { display: inline-block; width: 100px; }
+.TripalMap .form-submit                 { margin-bottom: .4em !important; }
+.TripalMap .form-item,
+.TripalMap .submit_mapViewer-all-button { display: inline-block; margin-bottom: .4em !important; margin-right: .4em; }
+
+fieldset.TripalMap #select_fieldset_organism,
+fieldset.TripalMap #select_fieldset_organism_comp1,
+fieldset.TripalMap #select_fieldset_organism_comp2 { margin-bottom: 0; }
+
+fieldset.TripalMap #select_fieldset_organism .fieldset-wrapper,
+fieldset.TripalMap #select_fieldset_organism_comp1 .fieldset-wrapper,
+fieldset.TripalMap #select_fieldset_organism_comp2 .fieldset-wrapper { margin-top: 10px; }
+
+.TripalMap .form-type-select label      { display: inline-block; width: 9em; -moz-box-sizing: border-box; 
+                                          -webkit-box-sizing: border-box;  box-sizing: border-box; }
+.TripalMap .form-item-select-map label  { width: 3em; }
+.TripalMap 
+.form-item-select-map-comparison label  { width: 3em !important; }
+.TripalMap 
+.form-item-select-chromosome label      { width: 8.4em; }
+
+.TripalMap .form-type-select select     { display: inline-block; margin-right: .8em; width: auto;}
+.TripalMap .form-item-select-map select { width: 24em; }
+.TripalMap 
+.form-item-select-map-comparison select { width: 24em; }
+.TripalMap 
+.form-item-select-chromosome select 	{ width: auto; }
+
+.TripalMap .form-item-color-picker-mapViewer select, 
+.TripalMap .form-item-select-mapViewer-display-state select
+	                                    { width: 11em; margin-right: 2em; }
+
+.TripalMap .form-item-select-organism select,
+.TripalMap .form-item-select-organism-comparison select,
+.TripalMap .form-item-select-color-marker-type-mapViewer select,
+.TripalMap .form-item-select-mapViewer-marker-type select { width:13em; }
+
+.TripalMap#show_hide_fieldset_mapViewer { margin-top: 1em; }
+.TripalMap#show_hide_fieldset_mapViewer 
+.form-item                              { display: inline-block; margin-bottom: .4em !important; margin-right: .4em; margin-top: 0em;}
+
+/* Map Overview text field*/
+.TripalMap p#mapoverview-textinfo       { margin: 1.2em 0 0; font-size: 1em; }
+
+/* Map Overview create scroll if the linkage groups exceed the table width */
+.TripalMap #mo_glyph_scroll				{ overflow-x: scroll; width:900px; }
+#select_organism.TripalMap label        { color:#3b3b3b;}
+
+/* Map Viewer and Correspondence Matrix, create scroll if the linkage groups exceed the table width */
+#mv_scroll.TripalMap					{ overflow-x: scroll; width:1100px; }
+#cm_scroll.TripalMap					{ overflow-x: scroll; width:1100px; overflow-y: scroll; height:600px; }
+
+/* MapViewer tooltip */
+.TripalMap_tooltip 						{ position: absolute; text-align: left; width: 12em; height: 11em; 
+										  padding: 1em 0 0 1em; font: .9em sans-serif; background: #E4E4E4;
+										  border-radius: .8em; pointer-events: none; }
+.TripalMap .axis path, 
+.TripalMap .axis line     { fill: none; stroke: #696969; shape-rendering: crispEdges; /*stroke-width: 0;*/ } 
+.TripalMap .brush         { stroke: #fff; fill-opacity: .125; shape-rendering: crispEdges; }
+.TripalMap .extent        { stroke: #fff; fill-opacity: .25; color: #FFDCDC; shape-rendering: crispEdges; }
+.TripalMap .arc           { fill: pink; stroke: red; }
+.TripalMap .line          { fill: none; stroke: #666; stroke-width: 1.5px; }
+
+
+/* MapViewer control panel */
+div#show_dot_plot.TripalMap				{ width: 930px; padding: 0 0 2em 0; }
+#show_dot_plot.TripalMap label.dotplot 	{ float: right; }
+.TripalMap .dotplot img 				{ width: 2em; height: 2em; margin: 0 0 0 .8em; }
+
+div#select_organism.TripalMap,
+div#show_main_comparison.TripalMap,
+div#select_display_settings.TripalMap	{ margin-top: 2em; }
+div#select_so_frame.TripalMap,
+div#show_mc_frame.TripalMap,
+div#select_ds_frame.TripalMap			{ width: 100%; margin: 10px 2px 0 1px; padding: 1em 0 0 1em; display: inline-block;
+    								  	  border: 1px solid #B3B3B3; border-radius: 8px; }
+.TripalMap a#correspondence_matrix_link	{ padding: 0 0 0 2em; text-decoration: underline; color:#3b3b3b; }
+
+/* chromosome fieldsets */
+#select_fieldset_chr1.TripalMap, 
+#select_fieldset_chr2.TripalMap, 
+#select_fieldset_chr3.TripalMap,
+#select_fieldset_overview.TripalMap     { width: 700px; display:block; margin-bottom:.4em !important; }
+.TripalMap 
+.form-item-select-chromosome3 select,
+.TripalMap 
+.form-item-select-chromosome2 select    { width: 26em; }
+
+/* Color fieldset */
+#select_organism.TripalMap,
+#select_organism_comparison.TripalMap,
+#color_fieldset_mapViewer.TripalMap,
+#color_fieldset_comparison.TripalMap, 
+#color_fieldset.TripalMap    			{ display:block; margin-top: .5em !important; }
+#color_fieldset_comparison.TripalMap p  { margin-bottom: .4em; }
+.TripalMap 
+.form-item-select-color-field           { margin-right: .8em; }
+
+
+/* Marker type visibility fieldset */
+#marker_display_fieldset_mapViewer.TripalMap { width: 1300px; display:block; margin-top: .5em !important; position: relative; clear: both;}
+#marker_display_fieldset_mapViewer.TripalMap div { display: inline-block; margin-bottom: .4em !important; margin-right: .4em; vertical-align: top !important; }
+#marker_display_fieldset_mapViewer.TripalMap select,
+#marker_display_fieldset_mapViewer.TripalMap label { vertical-align:top;}
+
+
+/* marker colors */
+.TripalMap #select_marker_type_color 
+option[value="salmonPink"]		{ background:#EC7063; }
+option[value="paleOrange"]		{ background:#E59866; } 
+option[value="orange"]			{ background:#D68910; } 
+option[value="redBrown"]		{ background:#6E2C00; }
+option[value="eggBlue"]			{ background:#2471A3; } 
+option[value="violetPurple"]	{ background:#A569BD; } 
+option[value="tealGreen"]		{ background:#45B39D; } 
+option[value="deepGreen"]		{ background:#145A32; } 
+option[value="avocadoGreen"]	{ background:#7D6608; } 
+option[value="medGray"]			{ background:#566573; }
+option[value="medGray2"]		{ background:#5F6A6A; } 
+option[value="black"]			{ background:#000000; }
+	
+/* Marker display select list */
+.TripalMap .form-item-select-display-state select,
+.TripalMap .form-item-color-picker select				{ width: 11em; }
+
+/* Show/hide fieldset */
+.TripalMap .show_hide_fieldset,
+.TripalMap .show_hide_fieldset_comparison 				{ margin-top: 1.5em; margin-bottom: 3em; }
+
+/* Landing page */
+#landing_page.TripalMap #mapviewer_intro				{ padding-bottom: 1.5em; }
+#landing_page.TripalMap #show_lp_correspondence_matrix  { padding-bottom: 1em; }
+#landing_page.TripalMap .form-item-select-organism label{ width: 6em; }
+
+
+/* Correspondence matrix and Dotplot */
+#select_correspondence_matrix.TripalMap > div					{ padding-top: 4em; }
+#select_correspondence_matrix.TripalMap .cm-submit-button		{ padding-top: 1em; }
+#select_fieldset_correspondence_matrix_svg.TripalMap a:hover 	{ cursor: pointer !important; }
+#select_fieldset_correspondence_matrix_svg.TripalMap a:visited	rect { fill: inherit; }
+#select_fieldset_correspondence_matrix_svg.TripalMap 	{ padding-top: 2em; padding-bottom: 4em; }
+.TripalMap #show_comparison_map img 					{ padding-left: 1em; }
+.TripalMap #show_comparison_map a 						{ text-decoration: none; }
+.TripalMap .form-item-select-organism-primary label		{ width: 5em !important; }
+.TripalMap .form-item-select-map-primary label			{ width: 3em !important; }
+.TripalMap .form-item-select-organism-secondary label	{ width: 5em !important; }
+.TripalMap .form-item-select-map-secondary label		{ width: 3em !important; }
+#select_cm_organism.TripalMap div 						{ padding-top: .75em; }
+
