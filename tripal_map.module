@@ -879,30 +879,4 @@ function tripal_map_get_qtl_and_mtl_features($featuremap_id, $linkage_group_id =
 
 }
 
-/**
- * Determines of the module is running on a Mainlab style server (with a MAINLAB CV) or not.
- * Sites without a MAINLAB CV will be fetch data assuming tirpal_cmap_loader() style instead of MCL style.
- *
- * @return boolean TRUE if mainlab, FALSE if not.
- */
-
-function tripal_map_is_mainlab(){
-
-  $values =  array(
-    'name' => 'MAINLAB',
-  );
-
-  $result = chado_select_record(
-    'cv',
-    array('cv_id'),
-    $values
-  );
-
-  if ($result){
-    return $result;
-  }
-  return FALSE;
-}
-
-
 
