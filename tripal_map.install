@@ -149,6 +149,7 @@ function tripal_map_create_QTL_and_MTL_mview() {
   $comment = 'A list of the maps and their corresponding QTL and heritable phenotypic markers, for all genus/species.';
   tripal_map_drop_mview($mview_name);
 
+
   $schema = array(
     'table' => $mview_name,
     'description' => $comment,
@@ -172,7 +173,8 @@ function tripal_map_create_QTL_and_MTL_mview() {
     )
   );
 
-  $sql = "
+
+    $sql = "
   SELECT FM.name as map_name, FM.featuremap_id as map_id, FMP.value as map_type, F2.name as linkage_group, F2.feature_id as linkage_group_id,
   F.uniquename as marker_locus_name, C1.name as map_unit_type, C.name as marker_type, C2.name as marker_pos_type, FPP.value as marker_pos,
   O.organism_id as organism_id, O.genus as genus, O.species as species, O.common_name as common_name,
@@ -231,7 +233,10 @@ function tripal_map_create_genetic_marker_mview() {
     )
   );
 
-  $sql = "
+
+  if (tripal_map_is_mainlab()) {
+
+    $sql = "
   SELECT F.uniquename as marker_locus_name, F.feature_id as marker_locus_id, F2.uniquename as genetic_marker_name,
   C1.name as map_unit_type, FPR.value as marker_type, FM.name as map_name, FM.featuremap_id as map_id, FMP.value as map_type,
   F3.name as linkage_group, F3.feature_id as linkage_group_id, FPP.value as marker_pos, C.name as marker_pos_type,
@@ -262,6 +267,52 @@ function tripal_map_create_genetic_marker_mview() {
   INNER JOIN {cvterm} C 				ON C.cvterm_id = FPP.type_id
   INNER JOIN {organism} O 				ON FMO.organism_id = O.organism_id
   ";
+  }
+  else {
+    $sql = " SELECT F.uniquename as marker_locus_name, F.feature_id as marker_locus_id, F2.uniquename as genetic_marker_name,
+  C1.name as map_unit_type, FPR.value as marker_type, FM.name as map_name, FM.featuremap_id as map_id, FMP.value as map_type,
+  F3.name as linkage_group, F3.feature_id as linkage_group_id, FPP.value as marker_pos, C.name as marker_pos_type,
+  O.organism_id as organism_id, O.genus as genus, O.species as species, O.common_name as common_name
+  FROM {feature} F
+  INNER JOIN {feature_relationship} FR 	ON FR.subject_id = F.feature_id AND
+
+
+    F.type_id = (SELECT cvterm_id  FROM {cvterm} WHERE name = 'marker_locus' AND
+    cv_id = (SELECT cv_id FROM {cv} WHERE name = 'sequence'))
+
+     AND
+
+
+    FR.type_id = (SELECT cvterm_id  FROM {cvterm} WHERE {cvterm}.name = 'instance_of' AND
+    cv_id = (SELECT cv_id FROM {cv} WHERE name = 'OBO_REL'))
+
+
+  INNER JOIN {feature} F2               	ON FR.object_id = F2.feature_id AND
+    F2.type_id = (SELECT cvterm_id FROM {cvterm} WHERE name = 'genetic_marker' AND
+    cv_id = (SELECT cv_id FROM {cv} WHERE name = 'sequence'))
+
+     AND
+    FR.type_id = (SELECT cvterm_id FROM {cvterm} WHERE name = 'instance_of' AND
+    cv_id = (SELECT cv_id FROM {cv} WHERE name = 'relationship'))
+
+
+  INNER JOIN {featurepos} FP            	ON F.feature_id = FP.feature_id
+  INNER JOIN {featureprop} FPR          	ON FPR.feature_id = F2.feature_id AND
+    FPR.type_id = (SELECT cvterm_id FROM {cvterm} WHERE name = 'marker_type' AND
+  	cv_id = (SELECT cv_id FROM {cv} WHERE name = 'MAIN'))
+  INNER JOIN {featuremap} FM    		ON FM.featuremap_id = FP.featuremap_id
+  INNER JOIN {cvterm} C1                ON C1.cvterm_id = FM.unittype_id
+  INNER JOIN {featuremapprop} FMP       ON FMP.featuremap_id = FP.featuremap_id AND
+   FMP.type_id = (SELECT cvterm_id FROM {cvterm} WHERE name = 'map_type' AND
+   cv_id = (SELECT cv_id FROM {cv} WHERE name = 'MAIN'))
+  INNER JOIN {featuremap_organism} FMO 	ON FMO.featuremap_id = FM.featuremap_id
+  INNER JOIN {feature} F3 				ON FP.map_feature_id = F3.feature_id
+  INNER JOIN {featureposprop} FPP 		ON FPP.featurepos_id = FP.featurepos_id
+  INNER JOIN {cvterm} C 				ON C.cvterm_id = FPP.type_id
+  INNER JOIN {organism} O 				ON FMO.organism_id = O.organism_id
+";
+
+  }
   
   // Create the MView
   tripal_map_create_mview($mview_name, $schema, $sql, $comment);
