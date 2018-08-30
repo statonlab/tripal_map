@@ -20,7 +20,7 @@ function tripal_map_bundle_fields_info($entity_type, $bundle) {
   $fields = array();
 
   // Use the 'data_table' property of the bundle to determine if want the field to be associated with this bundle.
-  if (isset($bundle->data_table) AND ($bundle->data_table == 'featuremap')) {
+  if (isset($bundle->data_table) AND ($bundle->data_table == 'featuremap' OR $bundle->data_table == 'organism') ) {
 
     // MapViewer Overview Field.
     //---------------------------------
@@ -80,7 +80,7 @@ function tripal_map_bundle_instances_info($entity_type, $bundle) {
   
   // Map.
   //===============
-  if (isset($bundle->data_table) AND ($bundle->data_table == 'featuremap')) {
+  if (isset($bundle->data_table) AND ($bundle->data_table == 'featuremap' OR  $bundle->data_table == 'organism')) {
 
     // Map Overview Summary Field.
     //---------------------------------
@@ -99,6 +99,9 @@ function tripal_map_bundle_instances_info($entity_type, $bundle) {
         'chado_table' => $bundle->data_table,
         'chado_column' => 'featuremap_id',
         'base_table' => $bundle->data_table,
+        'term_name' => 'mapviewer_overview',
+        'term_accession' => 'mapviewer_overview',
+        'term_vocabulary' => 'tripal_map',
       ),
       'widget' => array(
         'type' => 'tripal_map__mapviewer_overview_widget',

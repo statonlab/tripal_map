@@ -59,7 +59,40 @@ class tripal_map__mapviewer_overview extends ChadoField {
   public function load($entity) {
     // ChadoFields automatically load the chado column specified in the default settings above. 
     parent::load($entity);
-  
+
+    $field_name = $this->field['field_name'];
+
+    if ($entity->chado_table == 'organism') {
+
+      //set default
+      $entity->{$field_name}['und'][0]['value'] = NULL;
+
+      //are there any featuremaps for this organism?
+      $query = db_select('chado.featuremap_organism', 'fo')
+        ->fields('fo', ['featuremap_id']);
+      $query->join('chado.featuremap', 'f', 'f.featuremap_id = fo.featuremap_id');
+      $query->fields('f', ['name']);
+      //only include featuremaps in the mview
+      $query->join('chado.tripal_map_genetic_markers_mview', 'mview', 'mview.map_id =f.featuremap_id');
+      $query->condition('fo.organism_id', $entity->chado_record->organism_id);
+      $featuremaps = $query->execute()
+        ->fetchAll();
+
+      if (!$featuremaps) {
+        unset($entity->{$field_name});
+      }
+      $select = [];
+      foreach ($featuremaps as $featuremap) {
+        $select[$featuremap->featuremap_id] = $featuremap->name;
+      }
+
+      $entity->{$field_name}['und'][0]['value'] = TRUE;
+      $entity->{$field_name}['und'][0]['select_choices'] = $select;
+    }
+
+    return $entity;
+
+
   }
   
   
