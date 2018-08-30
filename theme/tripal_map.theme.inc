@@ -267,10 +267,12 @@ function tripal_map_mainlab_tripal_dbresult_to_array($dbresult) {
 function tripal_map_mainlab_tripal_link_record ($base_table, $record_id) {
 	$link = NULL;
 	// tripal v2 link (node)
-	$nid = chado_get_nid_from_id ($base_table, $record_id);
-	if ($nid) {
-		$link = "/node/$nid";
-	}
+  if (function_exists('chado_get_nid_from_id')) {
+    $nid = chado_get_nid_from_id($base_table, $record_id);
+    if ($nid) {
+      $link = "/node/$nid";
+    }
+  }
 	// tripal v3 link (entity)
 	if (function_exists('tripal_get_chado_entity_id')) {
 		$entity_id = tripal_get_chado_entity_id ($base_table, $record_id);
