@@ -679,16 +679,23 @@ function tripal_map_theme($existing, $type, $theme, $path) {
  */
 function tripal_map_create_features($featuremap_id, $linkage_group_id = NULL, $organism_id = NULL ) {
 
-  //mview
-  $sql = "SELECT *  FROM {tripal_map_genetic_markers_mview} WHERE  map_id = " . $featuremap_id;
+  $args = [];
+
+  $sql = "SELECT *  FROM {tripal_map_genetic_markers_mview} WHERE  map_id = :featuremap_id";
+  $args[':featuremap_id'] =  $featuremap_id;
+
+
   if (isset($linkage_group)) {
-    $sql .=  " AND linkage_group_id = '" . $linkage_group_id . "'";
+    $sql .=  " AND linkage_group_id = :linkage_group_id";
+    $args[':linkage_group_id'] =  $linkage_group_id;
+
   }
   if (isset($organism_id)) {
-  	$sql .=  " AND organism_id = '" . $organism_id . "'";
+    $sql .= " AND organism_id = :organism_id";
+    $args[':organism_id'] = $organism_id;
   }
 
-  $mview = chado_query($sql);
+    $mview = chado_query($sql, $args);
   $numrec = $mview->rowCount();
 
   $features = array();
@@ -740,11 +747,17 @@ function tripal_map_create_features($featuremap_id, $linkage_group_id = NULL, $o
  */
 function tripal_map_get_qtl_and_mtl_features($featuremap_id, $linkage_group_id = NULL) {
 
-  $sql = "SELECT *  FROM {tripal_map_qtl_and_mtl_mview} WHERE map_id = " . $featuremap_id;
+  $sql = "SELECT *  FROM {tripal_map_qtl_and_mtl_mview} WHERE map_id = :featuremap_id";
+  $args = [':featuremap_id' => $featuremap_id];
+
+
   if (isset($linkage_group)) {
-    $sql .=  " AND linkage_group_id = '" . $linkage_group_id . "'";
+    $sql .=  " AND linkage_group_id = :linkage_group_id";
+
+    $args[':linkage_group_id'] = $linkage_group_id;
+
   }
-  $mview = chado_query($sql);
+  $mview = chado_query($sql, $args);
   $numrec = $mview->rowCount();
 
   $positions = array();
