@@ -365,9 +365,11 @@ function tripal_map_feature_node_page($id) {
 	
   // tripal v2 link (node)
   $data_table = 'feature';
-  $nid = chado_get_nid_from_id ($data_table, $id);
-  if ($nid) {
-    drupal_goto("/node/$nid");
+  if (function_exists('chado_get_nid_from_id') && $id){
+    $nid = chado_get_nid_from_id ($data_table, $id);
+    if ($nid) {
+      drupal_goto("/node/$nid");
+    }
   }
 
   // tripal v3 link (entity)
