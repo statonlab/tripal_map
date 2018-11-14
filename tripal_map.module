@@ -20,6 +20,7 @@ require('includes/tripal_map.mapViewer.inc');
 require('includes/tripal_map.correspondence_matrix.inc');
 require('includes/tripal_map.dotplot.inc');
 require('includes/tripal_map.chado_node.inc');
+require('includes/tripal_map.organism_featuremap.form.inc');
 require_once('includes/tripal_map.fields.inc');
 
 
