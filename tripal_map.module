@@ -131,7 +131,7 @@ function tripal_map_create_correspondences() {
 
 function tripal_map_traverse_mview(&$corres, $mview, $marker_obj, $marker_name_str) {
 
-  $marker = $marker_obj->$marker_name_str;
+  $marker = $marker_obj->{$marker_name_str};
   $map = $marker_obj->map_id;
   $lg = $marker_obj->linkage_group_id;
   $marker_maps_tmp_list = array();
@@ -294,7 +294,7 @@ function tripal_map_menu() {
   $items['mapviewer/%'] = array(
     'title' => 'MapViewer',
     'description' => 'View TripalMap MapViewer',
-    'page callback' => tripal_map_mapviewer_new_page,
+    'page callback' => 'tripal_map_mapviewer_new_page',
     'page arguments' => array(1),
     'access arguments' => array('view tripalmap mapviewer'),
     'type' => MENU_CALLBACK,
@@ -303,7 +303,7 @@ function tripal_map_menu() {
   $items['mapviewer/%/%'] = array(
     'title' => 'MapViewer',
     'description' => 'View TripalMap MapViewer',
-    'page callback' => tripal_map_mapviewer_new_page,
+    'page callback' => 'tripal_map_mapviewer_new_page',
     'page arguments' => array(1,2),    
     'access arguments' => array('view tripalmap mapviewer'),
     'type' => MENU_CALLBACK,
@@ -312,7 +312,7 @@ function tripal_map_menu() {
   $items['mapviewer/%/%/%'] = array(
     'title' => 'MapViewer',
     'description' => 'View TripalMap MapViewer',
-    'page callback' => tripal_map_mapviewer_new_page,
+    'page callback' => 'tripal_map_mapviewer_new_page',
     'page arguments' => array(1,2,3),
     'access arguments' => array('view tripalmap mapviewer'),
     'type' => MENU_CALLBACK,
@@ -707,6 +707,19 @@ function tripal_map_create_features($featuremap_id, $linkage_group_id = NULL, $o
     if ($position->marker_pos_type != "comments") {
       // only create one genetic marker instance for the start position, even if a stop position exists
       if ($position->marker_pos_type == variable_get('tripal_map_chado_marker_start_pos_name')) {
+        $url = NULL;
+        if (function_exists('chado_get_nid_from_id')) {
+          $nid = chado_get_nid_from_id('feature', $position->marker_locus_id);
+          if($nid) {
+            $url = url('node/' . $nid);
+          }
+        }
+        elseif (function_exists('chado_get_record_entity_by_table')) {
+          $eid = chado_get_record_entity_by_table('feature', $position->marker_locus_id);
+          if($eid) {
+            $url = url('bio_data/' . $eid);
+          }
+        }
         $features[$count_lg]['marker_start_pos'] = $position->marker_pos;
         $features[$count_lg]['featuremap_id'] = $featuremap_id; // map_id
         $features[$count_lg]['linkage_group'] = $position->linkage_group; // map_feature_name
@@ -714,10 +727,11 @@ function tripal_map_create_features($featuremap_id, $linkage_group_id = NULL, $o
         $features[$count_lg]['genetic_marker_locus_name'] = $position->marker_locus_name; // feature name
         $features[$count_lg]['genetic_marker_type'] = $position->marker_type;
         $features[$count_lg]['feature_id'] = $position->marker_locus_id;
+        $features[$count_lg]['feature_url'] = $url;
         $features[$count_lg]['genus'] = $position->genus;
         $features[$count_lg]['species'] = $position->species;
-      
-      $count_lg++;
+
+        $count_lg++;
       }
     }
   }
@@ -726,6 +740,7 @@ function tripal_map_create_features($featuremap_id, $linkage_group_id = NULL, $o
   $features = array_merge($features, $qtl_and_mtl_features);
 
   return $features;
+
 }
 
 

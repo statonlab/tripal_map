@@ -572,7 +572,9 @@ configMapViewer = {
 			this.feature_id = markerData.feature_id;		
 			this.displayState = markerDisplayState;
 			this.color = markerColor;
-		}
+            this.url = markerData.feature_url || null;
+
+        }
 		getDisplayName() {
 			return this.name;
 		}

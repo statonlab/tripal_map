@@ -293,9 +293,15 @@ mapViewer = {
 			svg.classed("active", true);
 			
 			// change the cursor to a hand when hovering over
-			svg.selectAll("line, text").style("cursor", "pointer");
-			
-			// text aggregate popup
+            if(node.marker.url !== null) {
+
+                svg.selectAll("line, text").style("cursor", "pointer");
+            } else {
+                svg.selectAll("line, text").style("cursor", "text");
+            }
+
+
+            // text aggregate popup
 			var pos = '';
 			if ((node.marker.kind == "QTL") && (node.marker.startPos != node.marker.stopPos)) {
 				pos = Drupal.t('Position: @startPos - @stopPos', {
@@ -327,13 +333,15 @@ mapViewer = {
 	            .style("cursor", "default");
 		}
 
-		onclick(node) {
-			window.open(Drupal.settings.baseUrl+"/tripalmap_feature/"+node.marker.feature_id);		
+        onclick(node) {
+            if (node.marker.url) {
+                window.open(Drupal.settings.baseUrl + "/tripalmap_feature/" + node.marker.feature_id);
+            }
+            return false;
+        }
 
-			return false; 
-		}
 
-		startForce(force, view) {
+        startForce(force, view) {
 			force.on("tick", function() {
 				view.onForceTick(view.svg);
 			});
