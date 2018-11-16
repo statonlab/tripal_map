@@ -128,7 +128,7 @@ class tripal_map__mapviewer_mappos_formatter extends ChadoFieldFormatter {
       foreach($markers as $marker) {
         // Get the field values
         $map_name = $marker['map_name'];
-        $linkage_group = $marker['linkage_group'];
+        $linkage_group = str_replace("/", "_forwardslash_", $marker['linkage_group']);
         $position = $marker['marker_pos'];
         $locus = $marker['feature_name'];
         $mapviewer = "<a href= '/mapviewer/".$marker['map_id']."/".$linkage_group."/".$locus."' target='_blank'>MapViewer</a>";

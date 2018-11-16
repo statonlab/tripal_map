@@ -34,17 +34,39 @@ correspondenceMatrix = {
     	var rectHeight = numrows * cellsize;
     	var margin = {"x": 0, "y": 0};
 
-    	var x = d3.scale.ordinal()
-			.domain(d3.range(numcols))
-			.rangeBands([0, rectWidth]);
+    	var x = "";
+    	var y = "";
+    	if (tripalMap.d3VersionFour()) {
+    		x = d3.scaleBand()
+				.domain(d3.range(numcols))
+				.range([0, rectWidth]);
 
-		var y = d3.scale.ordinal()
-			.domain(d3.range(numrows))
-			.rangeBands([0, rectHeight]);
+    		y = d3.scaleBand()
+    			.domain(d3.range(numrows))
+    			.range([0, rectHeight]);
+   
+    	}
+    	else {
+    		x = d3.scale.ordinal()
+				.domain(d3.range(numcols))
+				.rangeBands([0, rectWidth]);
+
+    		y = d3.scale.ordinal()
+				.domain(d3.range(numrows))
+				.rangeBands([0, rectHeight]);
+    	}
 	
-	    var options = { "data": correspondences, "labelsCol" : cols['lgs'],  "mapNameCol": cols['name'], "mapIdCol": cols['feature_id'],
-	    	"labelsRow": rows['lgs'],"mapNameRow": rows['name'], "mapIdRow": rows['feature_id'], "start_color" : '#ffffff',"end_color" : '#3498db', 
-	    	"rectWidth": rectWidth, "rectHeight": rectHeight, "xScale": x, "yScale": y};
+		// If the exact mapName string occurs in the linkage group name, filter it out to reduce duplication
+    	var labelsColLink = cols['lgs'];
+    	var labelsRowLink = rows['lgs'];
+		cols['lgs'] = cols['lgs'].map(x => tripalMap.lGNameReduction(x, cols['name']));
+		rows['lgs'] = rows['lgs'].map(x => tripalMap.lGNameReduction(x, rows['name']));
+
+	    var options = { 
+	    	"data": correspondences, "labelsCol": cols['lgs'], "labelsColLink": labelsColLink, "mapNameCol": cols['name'], 
+	    	"mapIdCol": cols['feature_id'], "labelsRow": rows['lgs'], "labelsRowLink": labelsRowLink, "mapNameRow": rows['name'],
+	    	"mapIdRow": rows['feature_id'], "start_color" : '#ffffff', "end_color" : '#3498db', 
+	    	"rectWidth": rectWidth,	"rectHeight": rectHeight, "xScale": x, "yScale": y};
 
 	    var svgFieldset = "#select_fieldset_correspondence_matrix_svg";
 	    d3.select(svgFieldset).selectAll("svg").remove(); 
@@ -110,7 +132,7 @@ correspondenceMatrix = {
 	},
 	
 	drawColLabels: function(svg, mapNameCol, mapIdCol, labelsDataCol, x, y, width) {
-
+	
 		var columnLabels = svg.append("g")
 			.attr("class","column-labels");
 		
@@ -132,16 +154,30 @@ correspondenceMatrix = {
     		.selectAll(".column-cell-label")
     		.data(labelsDataCol)
     		.enter().append("g")
-    			.attr({"class": "column-cell-label","transform": function(d, i) { 
-    			return "translate(" + x(i) + "," + 0 + ")"; }});
+    			.attr("class", "column-cell-label")
+    			.attr("transform", function(d, i) { return "translate(" + x(i) + "," + 0 + ")"; });
     	
+    	xrange = "";
+    	yrange = "";
+    	if (tripalMap.d3VersionFour()) {
+    		xrange = x.bandwidth();
+    		yrange = y.bandwidth();
+    	}
+    	else {
+    		xrange = x.rangeBand();
+    		yrange = y.rangeBand();
+    	}
     	columnLabels.append("line")
     		.style("stroke", "black")
     		.style("stroke-width", "1px")
-    		.attr({"x1": x.rangeBand() / 2, "x2": x.rangeBand() / 2, "y1": 18, "y2": 20});
-
+    		.attr("x1", xrange / 2).attr( "x2", xrange / 2).attr("y1", 18).attr("y2", 20);
+    		
     	columnLabels.append("text")
-    		.attr({"x": 0, "y": y.rangeBand() / 2, "dy": ".82em","text-anchor": "start", "transform": "rotate(290)"})
+    		.attr("x", 0)
+    		.attr("y", yrange / 2)
+    		.attr("dy", ".82em")
+    		.attr("text-anchor", "start")
+    		.attr("transform", "rotate(290)")
     		.text(function(d, i) { return d; });
 
 		var colLabelsHeight = svg.select(".column-cell-labels").node().getBBox().height;
@@ -179,22 +215,38 @@ correspondenceMatrix = {
     		.selectAll("row-cell-label")
     		.data(labelsDataRow)
     		.enter().append("g")
-    			.attr({"class": "row-cell-label","transform": function(d, i) { return "translate(" + 0 + "," + y(i) + ")"; }});
+    			.attr("class", "row-cell-label")
+    			.attr("transform", function(d, i) { return "translate(" + 0 + "," + y(i) + ")"; });
+
+    	yrange = "";
+    	if (tripalMap.d3VersionFour()) {
+    		yrange = y.bandwidth();
+    	}
+    	else {
+    		yrange = y.rangeBand();
+    	}
 
     	rowLabels.append("line")
     		.style("stroke", "black")
     		.style("stroke-width", "1px")
-    		.attr({"x1": 0, "x2": -2, "y1": y.rangeBand() / 2, "y2": y.rangeBand() / 2});
+    		.attr("x1", 0)
+    		.attr( "x2", -2)
+    		.attr( "y1", yrange / 2)
+    		.attr( "y2", yrange / 2);
 
     	rowLabels.append("text")
-    		.attr({"x": -8, "y": y.rangeBand() / 2, "dy": ".32em", "text-anchor": "end"})
+    		.attr("x", -8)
+    		.attr( "y", yrange / 2)
+    		.attr( "dy", ".32em")
+    		.attr( "text-anchor", "end")
     		.text(function(d, i) { return d; });
 
     	var rowLabelsWidth = svg.select(".row-cell-labels").node().getBBox().width;
     	var rowLabelsHeight = svg.select(".row-cell-labels").node().getBBox().height;
 
     	rowMapLabelText.attr("transform", "translate( " + (-(height / 2 + (rowMapTextWidth / 2))) + ", " + (rowMapTextHeight - mapLabelBuf) + ")");
-    	svg.selectAll(".row-cell-labels").attr("transform", "translate( " + (rowLabelsWidth + rowMapTextHeight) + ", " + 0 + ")");
+    	svg.selectAll(".row-cell-labels")
+    		.attr("transform", "translate( " + (rowLabelsWidth + rowMapTextHeight) + ", " + 0 + ")");
     	
     	return  rowLabelsWidth + rowMapTextHeight; // translated sideways, so offset is the horizontal (height)
 	},
@@ -206,6 +258,8 @@ correspondenceMatrix = {
 		var mapIdCol = options.mapIdCol;
 		var labelsCol = options.labelsCol;
 		var labelsRow = options.labelsRow;
+		var labelsColLink = options.labelsColLink;
+		var labelsRowLink = options.labelsRowLink;
     	var startColor = options.start_color;
     	var endColor = options.end_color;
     	var width = options.rectWidth;
@@ -246,18 +300,50 @@ correspondenceMatrix = {
     		.attr("class", "cell")
     		.attr("transform", function(d, i) { return "translate(" + x(i) + ", 0)"; });
 
- 		// use encodeURI rather than encodeURIComponent as the latter replaces forward slashes with %2F which confuses Drupal menu_hook
-    	var a = cells.append("a")
-			.attr("xlink:href", function(d, col, row) { return Drupal.settings.baseUrl + "/mapviewer_comparison/" + mapIdRow +"/" 
-				+ encodeURI(labelsRow[row].toString().replace(/\//g, "_forwardslash_")) + "/" + mapIdCol + "/"
-				+ encodeURI(labelsCol[col].toString().replace(/\//g, "_forwardslash_")) });
 
+    	// use encodeURI rather than encodeURIComponent as the latter replaces forward slashes with %2F which confuses Drupal menu_hook
+    	var a = cells.append("a");
+    	if (tripalMap.d3VersionFour()) {
+    		var row = -1;
+        	a.attr("xlink:href", function(d, col) { 
+        		if (col == 0) {
+        			row += 1;
+        		}
+        		var alink = Drupal.settings.baseUrl + "/mapviewer_comparison/" + mapIdRow +"/" 
+        			+ encodeURI(labelsRowLink[row].toString().replace(/\//g, "_forwardslash_")) + "/" + mapIdCol + "/"
+        			+ encodeURI(labelsColLink[col].toString().replace(/\//g, "_forwardslash_"));
+        		
+        		return alink;
+        	});
+    	}
+    	else {
+    		a.attr("xlink:href", function(d, col, row) { 
+			return Drupal.settings.baseUrl + "/mapviewer_comparison/" + mapIdRow +"/" 
+				+ encodeURI(labelsRowLink[row].toString().replace(/\//g, "_forwardslash_")) + "/" + mapIdCol + "/"
+				+ encodeURI(labelsColLink[col].toString().replace(/\//g, "_forwardslash_")) });
+    	}
+    	xrange = "";
+    	yrange = "";
+    	if (tripalMap.d3VersionFour()) {
+    		xrange = x.bandwidth();
+    		yrange = y.bandwidth();
+    	}
+    	else {
+    		xrange = x.rangeBand();
+    		yrange = y.rangeBand();
+    	}
+    
     	var g = a.append("g");
     	g.append('rect')
-    		.attr({"width": x.rangeBand(),"height": y.rangeBand()})
+    		.attr("width", xrange)
+    		.attr("height", yrange)
     		.style("stroke-width", 0);
+    	
     	g.append("text")
-    		.attr({"dy": ".32em","x": x.rangeBand() / 2, "y": y.rangeBand() / 2, "text-anchor": "middle"})
+    		.attr("dy", ".32em")
+    		.attr("x", xrange / 2)
+    		.attr( "y", yrange / 2)
+    		.attr( "text-anchor", "middle")
     		.style("fill", function(d, i) { return d >= maxValue/2 ? 'white' : 'black'; })
     		.text(function(d, i) { return d; });
 			

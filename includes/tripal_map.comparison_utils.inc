@@ -213,7 +213,7 @@ function tripal_map_form_add_organism_comparison_bar(&$form, &$form_state, $sele
 
   $fs_storage =& $form_state['storage'];
   
-  // Add the dotplot to the top of the Control panel, now that ref map and chr is available
+  // Add the dot plot to the top of the Control panel, now that ref map and chr is available
   $dotplot_icon = '/' . drupal_get_path('module', 'tripal_map') . '/theme/images/dotplot.png';
   $ref_map = tripal_map_get_elem($fs_storage, 'maps_key');
   $ref_chr = tripal_map_get_elem($fs_storage, 'chr_key');
@@ -224,8 +224,8 @@ function tripal_map_form_add_organism_comparison_bar(&$form, &$form_state, $sele
     '#type' => 'container',
     '#prefix' => 
   	  '<div id="show_dot_plot" class="TripalMap">
-      <label class="dotplot">Dotplot  <a href= ' . $dotplot_url . '
-  	  target="_blank" title="Dotplot"><img id="dotplot_img" src="' . $dotplot_icon . 
+      <label class="dotplot">Dot Plot  <a href= ' . $dotplot_url . '
+  	  target="_blank" title="Dot Plot"><img id="dotplot_img" src="' . $dotplot_icon . 
   	 '" align="top"></a></label>',
     '#suffix' => '</div>',
     '#collapsible' => FALSE,
@@ -240,7 +240,7 @@ function tripal_map_form_add_organism_comparison_bar(&$form, &$form_state, $sele
     '#prefix' => '<div id="show_main_comparison" class="TripalMap">
   	  <label class="reference">Select Comparison Map: </label>'
       .'<a id="correspondence_matrix_link" href= '.$correspondence_matrix_url.' target="_blank"
-  	  title="Correspondence Matrix">(View Correspondences Matrix)</a></label>',
+  	  title="Correspondence Matrix">(View Correspondence Matrix)</a></label>',
   	'#suffix' => '</div>',
     '#collapsible' => FALSE,
   );

@@ -922,3 +922,16 @@ function tripal_map_form_add_show_hide_bar(&$form, &$form_state) {
   
 }
 
+
+function tripal_map_attach_d3_lib(&$form) {
+  
+  //$form['#attached']['js'][] = drupal_get_path('module', 'tripal_map') . '/theme/js/libraries/d3.v4.min.js';
+  $form['#attached']['js'][] = drupal_get_path('module', 'tripal_map') . '/theme/js/libraries/d3v3.min.js';
+  return $form;
+
+}
+
+function tripal_map_show_correspondence_matrix_menu() {
+    return false;
+    //return true;
+}

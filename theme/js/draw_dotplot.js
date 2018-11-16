@@ -18,6 +18,8 @@ dotplot = {
 	    	if (corres.hasOwnProperty(ckey)) {
 				markerCorres = corres[ckey];
 				if (Object.keys(markerCorres).length >= 2 ) {
+					// only use the marker if it pertains to either the primary or secondary linkage group (correspondences are for the whole map)
+					if ((markerCorres[0].linkageGroup == primLinkageGroup) || (markerCorres[0].linkageGroup == secLinkageGroup)) {
 					var xPos = parseInt(markerCorres[0].position);
 					var yPos = parseInt(markerCorres[1].position);
 					dp.x.push(xPos);
@@ -25,6 +27,7 @@ dotplot = {
 					dp.label.push(ckey);
 					dp.annotation.push({ x: xPos, y: yPos, text: "<a href = '"+Drupal.settings.baseUrl+"/tripalmap_feature/"+markerCorres[0].feature_id+"'>{}</a>", 
 						showarrow: false, xanchor:'center', yanchor:'center', opacity: 0, hovertext: ckey });
+					}
 				}
 	    	}
 	    };
@@ -53,13 +56,13 @@ dotplot = {
 	        height: 600, 
 			xaxis: {
 				range: [0, (Math.max(...dp.x) + markerSize)],
-				title: primMap+'<br>'+primLinkageGroup,
+				title: primMap+'<br>'+tripalMap.lGNameReduction(primLinkageGroup, primMap),
 				layer: "below traces", 
 			},
 
 			yaxis: {
 				range: [0, (Math.max(...dp.y) + markerSize)],
-				title: secMap+'<br>'+secLinkageGroup,
+				title: secMap +'<br>'+tripalMap.lGNameReduction(secLinkageGroup, secMap),
 				layer: "below traces",
 
 			},
@@ -68,6 +71,7 @@ dotplot = {
 			annotations: dp.annotation, 
 		};
 
+    	
 		Plotly.newPlot('select_fieldset_dotplot_svg', data, layout);	
 		
 	},		
@@ -136,7 +140,7 @@ dotplot = {
     	var lgX = options.primLinkageGroup;
     	lgX = tripalMap.lGNameReduction(lgX, mapX);
     	var xLabel = [mapX, lgX, "0 -"+xMax+" cM"];
-
+    	
     	// x-axis
        	var xScale = d3.scaleLinear().range([0, width]);
     	// prevent dots overlapping the axis. Add buffer to data domain

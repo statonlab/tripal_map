@@ -61,9 +61,11 @@ function tripal_map_correspondence_matrix_form($form, &$form_state, $featuremap_
   /* Enable to show selector menus */
   // Initialize toolbars and form state storage
   // The secondary map will have a filtered list based on the primary map
-  //tripal_map_form_cm_organism_bar_init($form, $form_state, $select_options, $featuremap_prim_id, $featuremap_sec_id);
-  //tripal_map_form_correspondence_matrix_bar($form, $form_state, $select_options, $featuremap_prim_id, $featuremap_sec_id);
-
+  if (tripal_map_show_correspondence_matrix_menu()) {
+    tripal_map_form_cm_organism_bar_init($form, $form_state, $select_options, $featuremap_prim_id, $featuremap_sec_id);
+    tripal_map_form_correspondence_matrix_bar($form, $form_state, $select_options, $featuremap_prim_id, $featuremap_sec_id);
+  }
+  
   // add refmap, compmap and corres to JS
   $map_org = $select_options['map_org'];
   $features_corres_matrix = tripal_map_create_cm_JS_params($featuremap_prim_id, $featuremap_sec_id, $map_org);
@@ -72,8 +74,7 @@ function tripal_map_correspondence_matrix_form($form, &$form_state, $featuremap_
   tripal_map_update_drupal_add_js_params($js_setting_corres_matrix, NULL, NULL, $features_corres_matrix);
   
   // display the correspondence matrix table
-  //$form['#attached']['js'][] = drupal_get_path('module', 'tripal_map') . '/theme/js/libraries/d3.v4.min.js'; 
-  $form['#attached']['js'][] = drupal_get_path('module', 'tripal_map') . '/theme/js/libraries/d3v3.min.js';
+  $form = tripal_map_attach_d3_lib($form);
   $form['#attached']['js'][] = drupal_get_path('module', 'tripal_map') . '/theme/js/libraries/FileSaver.js';
   $form['#attached']['js'][] = drupal_get_path('module', 'tripal_map') . '/theme/js/libraries/canvas-to-blob.min.js';
   

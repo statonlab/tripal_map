@@ -6,8 +6,8 @@ function tripal_map_enable() {
   user_role_grant_permissions( DRUPAL_AUTHENTICATED_RID, array('view tripalmap mapviewer'));
   user_role_grant_permissions( DRUPAL_ANONYMOUS_RID,  array('view tripalmap correspondence matrix')); 
   user_role_grant_permissions( DRUPAL_AUTHENTICATED_RID, array('view tripalmap correspondence matrix'));
-  user_role_grant_permissions( DRUPAL_ANONYMOUS_RID,  array('view tripalmap dotplot'));
-  user_role_grant_permissions( DRUPAL_AUTHENTICATED_RID, array('view tripalmap dotplot'));
+  user_role_grant_permissions( DRUPAL_ANONYMOUS_RID,  array('view tripalmap dot plot'));
+  user_role_grant_permissions( DRUPAL_AUTHENTICATED_RID, array('view tripalmap dot plot'));
   
 }
 
@@ -20,8 +20,9 @@ function tripal_map_install() {
 
   // set defaults for Drupal local variables configurable by the Admin page.
   variable_set('tripal_map_video_tutorial_link', st('https://youtu.be/k3rR2obwBvw'));
-  variable_set('tripal_map_text_tutorial_link', st('https://www.coolseasonfoodlegume.org/node/1123110'));
+  variable_set('tripal_map_text_tutorial_link',  st('/MapViewer_Manual')); //'https://www.coolseasonfoodlegume.org/node/1123110'
   variable_set('tripal_map_sample_map_tutorial_link', st(''));
+  variable_set('tripal_map_example_exported_figures_tutorial_link', st('/MapViewer_Exports'));
   variable_set('tripal_map_chado_marker_start_pos_name', st('start'));
   variable_set('tripal_map_chado_marker_stop_pos_name', st('stop'));
   variable_set('tripal_map_chado_marker_qtl_peak_pos_name', st('qtl_peak'));
@@ -91,6 +92,7 @@ function tripal_map_uninstall() {
     'tripal_map_video_tutorial_link',
     'tripal_map_text_tutorial_link',
     'tripal_map_sample_map_tutorial_link',
+    'tripal_map_example_exported_figures_tutorial_link',
     'tripal_map_marker_name_abbrev',
     'tripal_map_toolbar_organism_common_name',
     'tripal_map_toolbar_organism_genus_species',

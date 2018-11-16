@@ -41,13 +41,17 @@ var geneticOverviewMap = geneticOverviewMap || {};
     var data = (JSON.parse(dataMarkers));
 	var linkageGroupsAr = [];
 	data.forEach(function(d) {
-		
+		//alert("d.linkage_group: "+JSON.stringify(d.linkage_group));
+		if (!(d.linkage_group)) {
+			// the linkage group name is null, but data is still associated with it. assign it the string "null" to proceed.
+			d.linkage_group = "Null";
+		}
 		if (!(linkageGroupsAr.indexOf(d.linkage_group) > -1)) {
 			linkageGroupsAr.push(d.linkage_group);
 		}
 		
 	});
-	
+
 	linkageGroupsAr.sort();
 
 	// get linkage group label max height to adjust svg for linkage group label multi-line wrap
@@ -60,7 +64,7 @@ var geneticOverviewMap = geneticOverviewMap || {};
 		var t = d3.select("#select_fieldset_genetic_map_overview").append("svg");
 			t.append("text")
 			.attr("class", "lgtext")
-			.style("font-size", "1em")
+			.style("font-size", "1em").style("line-height", ".9em")
 			.text(Drupal.t( '@linkageGroup', {'@linkageGroup': linkageGroupName}))	  
 			.call(tripalMap.wrap, glyphDistanceSeparation);
 
@@ -127,7 +131,7 @@ var geneticOverviewMap = geneticOverviewMap || {};
 			var dy = chr.offsets.topLabel.y+ transY + 40;
 			chrView.append("text")
 				.attr("class", "lgtext").attr( "id", "text-select").attr("dx", dx).attr("dy", dy)
-				.style("font-size", "1em")
+				.style("font-size", "1em").style("line-height", ".9em")
 				.text(linkageGroupName)	  
 				.call(tripalMap.wrap, glyphDistanceSeparation);
 			
@@ -245,12 +249,14 @@ var geneticOverviewMap = geneticOverviewMap || {};
 
 			svg = d3.select("#mo_glyph_scroll")
 				.append("svg")
+				.attr("class", "TripalMap")
 				.attr("width", container.width).attr("height", container.height);
 		}
 		else {
 	       svg = d3.select("#select_fieldset_genetic_map_overview")
 	            .append("svg")
-	            .attr("width", container.width).attr("height", container.height);
+	            .attr("class", "TripalMap")
+				.attr("width", container.width).attr("height", container.height);
 	    }
 
 	    return svg;

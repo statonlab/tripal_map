@@ -15,7 +15,7 @@ var tripalMap = tripalMap || {};
     	
     	var stp = d3.select("#save_to_png");
     	var stpn = stp.node().getBoundingClientRect();
-    	var translateX = stpn.x - svg.node().getBoundingClientRect().x;// + 15;
+    	var translateX = stpn.x - svg.node().getBoundingClientRect().x;
     	var translateY = stpn.y - svg.node().getBoundingClientRect().y + stpn.height + 5;
 
     	stpG.attr("transform", "translate("+ translateX + "," + translateY + ")");
@@ -73,13 +73,16 @@ var tripalMap = tripalMap || {};
 	// Below are the functions that handle actual exporting:
 	// getSVGString ( svgNode ) and svgString2Image( svgString, width, height, format, callback )
 	getSVGString: function(svgNode) {
-		
 		svgNode.setAttribute('xlink', 'http://www.w3.org/1999/xlink');
-		var cssStyleText = getCSSStyles( svgNode );
+		var cssStyleText = getCSSStyles( svgNode ); // this modifies the font size 
 		appendCSS( cssStyleText, svgNode );
 
 		var serializer = new XMLSerializer();
 		var svgString = serializer.serializeToString(svgNode);
+		// remove the node style attribute
+		var style = document.getElementById("tripal_map_style");
+		style.parentNode.removeChild(style);
+
 		svgString = svgString.replace(/(\w+)?:?xlink=/g, 'xmlns:xlink='); // Fix root xlink without namespace
 		svgString = svgString.replace(/NS\d+:href/g, 'xlink:href'); // Safari NS namespace fix
 
@@ -119,10 +122,18 @@ var tripalMap = tripalMap || {};
 			    		continue;
 			    	}
 
+				var cssText = "";
 				var cssRules = s.cssRules;
 				for (var r = 0; r < cssRules.length; r++) {
-					if ( contains( cssRules[r].selectorText, selectorTextArr ) )
-						extractedCSSText += cssRules[r].cssText;
+					//if ( contains( cssRules[r].selectorText, selectorTextArr ) )
+					if (cssRules[r].selectorText) {
+						if (cssRules[r].selectorText == "svg.TripalMap") {
+							extractedCSSText += "svg.TripalMap { font: .8em sans-serif; padding-left: 1em;}";
+						}                
+						else {
+							extractedCSSText += cssRules[r].cssText;
+						}
+					}
 				}
 			}
 			return extractedCSSText;
@@ -135,7 +146,8 @@ var tripalMap = tripalMap || {};
 
 		function appendCSS( cssText, element ) {
 			var styleElement = document.createElement("style");
-			styleElement.setAttribute("type","text/css"); 
+			styleElement.setAttribute("type","text/css");
+			styleElement.setAttribute("id", "tripal_map_style");
 			styleElement.innerHTML = cssText;
 			var refNode = element.hasChildNodes() ? element.children[0] : null;
 			element.insertBefore( styleElement, refNode );
@@ -163,7 +175,7 @@ var tripalMap = tripalMap || {};
 			  context.globalCompositeOperation = 'destination-over';
 			  context.fillStyle = 'white';
 			  context.fillRect(0, 0, canvas.width, canvas.height);
-			  // Restore the original context state from `context.save()`
+			  // Restore the original context state previously saved
 			  context.restore();
 			
 			canvas.toBlob( function(blob) {
@@ -178,7 +190,6 @@ var tripalMap = tripalMap || {};
 		
  			
 	findCorrespondences: function(data) {
-	    
 		//output format: {"UBC190":[{"linkageGroup":"LG1", "position":"97.5"},{"linkageGroup":"LG2","position":"85.3"}],
 		//                "UBC43":[{"linkageGroup":"LG1","position":"97.5","linkageGroup":"LG2","position":"14"}]}
 		
@@ -212,7 +223,7 @@ var tripalMap = tripalMap || {};
 				}
 			}
 		}
-		
+
 		return markerCorrespondences;
 	},
 
@@ -340,10 +351,11 @@ var tripalMap = tripalMap || {};
 	
 	lGNameReduction: function(linkageGroup, mapNameIn) {
 
-		var linkageGroupName = linkageGroup;
+		var linkageGroupName = linkageGroup.replace(/['"]+/g, '');
 		
 		// test the linkageGroup name for map name duplicate inclusion
 		var mapName = mapNameIn.replace(/['"]+/g, '');
+	
 		var mapNameIndex = linkageGroupName.indexOf(mapName); // -1 if never occurs
 		if ((mapNameIndex > -1) && ((mapNameIndex + mapName.length) < linkageGroupName.length)) {
 			// If the exact mapName string occurs in the linkage group name, remove it

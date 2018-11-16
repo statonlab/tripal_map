@@ -59,8 +59,14 @@
 		var linkageGroupComparisonId = "lgComp";
 		var mapComparisonId = uniqueMarkersComparison[0].featuremap_id;
 		var markerData = new configMapViewer.MarkerData(strMarkerTypeDisplayStates, markerTypeColorMap);
+		if (!(linkageGroupName)){
+			linkageGroupName = "Null";
+		}
 	    markerData.addLinkageGroup(uniqueMarkers, linkageGroupName, mapName, linkageGroupId, mapId, mapViewer.OrientationEnum.LEFT);
 		if (showComparison) {
+			if (!(linkageGroupComparisonName)){
+				linkageGroupComparisonName = "Null";
+			}
 	    markerData.addLinkageGroup(uniqueMarkersComparison, linkageGroupComparisonName, mapComparisonName, linkageGroupComparisonId, mapComparisonId, mapViewer.OrientationEnum.RIGHT);
 		}
 		markerData.findCorrespondences();
@@ -69,7 +75,7 @@
 	    // get the svg width
 		var svgFieldset = "#select_fieldset_mapViewer_svg";
 	    d3.select(svgFieldset).selectAll("svg").remove(); 
-	    var svgHeight = 600;
+	    var svgHeight = 600 + 25;
 	    var svgMaxWidth = 1100;
 	    var svg = d3.select(svgFieldset)
 	    	.append("svg").attr("class", "TripalMap").attr("width", svgMaxWidth).attr("height", svgHeight);
@@ -84,7 +90,7 @@
 		}
 
 		// if a scrollbar is required, nest the svg in the div for scrolling
-		var svgWidth = chrFrameRefWidth + chrFrameCompWidth + 200;
+		var svgWidth = chrFrameRefWidth + chrFrameCompWidth + 200 + 35;
 		var mvScroll = "mv_scroll";
 	    d3.select(svgFieldset).selectAll("svg").remove(); 
 		if (svgWidth > svgMaxWidth) {

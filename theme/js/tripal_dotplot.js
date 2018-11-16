@@ -1,7 +1,7 @@
 
 /* 
  * File: tripal_dotplot.js
- * Obtain settings from MapViewer PHP form, call Dotplot draw to display selected chromosomes.
+ * Obtain settings from MapViewer PHP form, call Dot Plot draw to display selected chromosomes.
  */
 
 (function($) {

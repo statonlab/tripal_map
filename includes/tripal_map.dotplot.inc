@@ -2,8 +2,8 @@
 
 /**
  * @file
- *	 Create form that displays the Dotplot
- *	 Draw the Dotplot page, displaying a plot of correspondences and their relative positions
+ *	 Create form that displays the Dot Plot
+ *	 Draw the Dot Plot page, displaying a plot of correspondences and their relative positions
  *	 on two linkage groups for the maps 
  * 
  * @ingroup tripal_map
@@ -82,9 +82,9 @@ function tripal_map_dotplot_form($form, &$form_state, $featuremap_prim_id = NULL
   $js_setting_sec = "mapDotPlotSecJS";
   tripal_map_update_drupal_add_js_params($js_setting_sec, $featuremap_sec_id, $lg_sec_name, $features_sec);
   
+  
   // display the dotplot
-  //$form['#attached']['js'][] = drupal_get_path('module', 'tripal_map') . '/theme/js/libraries/d3.v4.min.js';
-  $form['#attached']['js'][] = drupal_get_path('module', 'tripal_map') . '/theme/js/libraries/d3v3.min.js';
+  $form = tripal_map_attach_d3_lib($form);
   $form['#attached']['js'][] = drupal_get_path('module', 'tripal_map') . '/theme/js/libraries/plotly-latest.min.js';
   
   $form['select'] = array(

@@ -146,7 +146,15 @@ function tripal_map_set_form_user_instr(&$form) {
     '#markup' => '<div id="tutorial"><a href="' . $video_tut_link . '" target="_blank">Short video tutorial</a></div>',
   );
 
+  // obtain link to text tutorial
   $text_tut_link = variable_get('tripal_map_text_tutorial_link', t(''));
+  global $base_url;
+  if (substr($text_tut_link, 0, 4) != "http") {
+      // the sample map path is not a fully formed path ex. "https://.."
+      // to prevent appending of incorrect base path because of hook form_alter, set the full path here
+      $text_tut_link = $base_url . $text_tut_link;
+  }
+  
   $form['user_instructions']['text_tutorial'] = array(
     '#markup' => '<div id="text_tutorial">| <a href="' . $text_tut_link . '" target="_blank"> Text tutorial</a></div>',
   );
@@ -293,7 +301,7 @@ function tripal_map_form_organism_bar_init( &$form, &$form_state, $select_option
   tripal_map_trigger_update_storage_from_selectors($selector_toolbar, $fs_selector_names, 
   		$form_trigger_selectors, $select_options, $form_state);
 
-  // Add the dotplot container first so it appears above the control panel
+  // Add the dot plot container first so it appears above the control panel
   $form['dotplot'] = array(
     '#type' => 'container',
     '#prefix' => '<div id="show_dot_plot" class="TripalMap">',
@@ -404,8 +412,7 @@ function tripal_map_form_init(&$form, &$form_state, $form_type, $featuremap_id, 
   // obtain all marker types
   $marker_types = tripal_map_get_marker_types($all_features);
   
-  //$form['#attached']['js'][] = drupal_get_path('module', 'tripal_map') . '/theme/js/d3.v4.min.js';
-  $form['#attached']['js'][] = drupal_get_path('module', 'tripal_map') . '/theme/js/libraries/d3v3.min.js';
+  $form = tripal_map_attach_d3_lib($form);
   $form['#attached']['js'][] = drupal_get_path('module', 'tripal_map') . '/theme/js/libraries/FileSaver.js';
   $form['#attached']['js'][] = drupal_get_path('module', 'tripal_map') . '/theme/js/libraries/canvas-to-blob.min.js';
   

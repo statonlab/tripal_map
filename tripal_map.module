@@ -44,9 +44,9 @@ function tripal_map_permission() {
       'title' => t('View TripalMap Correspondence Matrix'),
       'description' => t('Required for anyone wanting to view TripalMap Correspondence Matrix.'),
     ),
-  	'view tripalmap dotplot' => array(
-      'title' => t('View TripalMap Dotplot'),
-      'description' => t('Required for anyone wanting to view TripalMap Dotplot.'),
+  	'view tripalmap dot plot' => array(
+      'title' => t('View TripalMap Dot Plot'),
+      'description' => t('Required for anyone wanting to view TripalMap Dot Plot.'),
     ),
   );
 }
@@ -129,7 +129,11 @@ function tripal_map_create_correspondences() {
 
 
 function tripal_map_traverse_mview(&$corres, $mview, $marker_obj, $marker_name_str) {
-
+	
+  if (empty($mview) || empty($marker_obj)) {
+  	return;
+  }
+  
   $marker = $marker_obj->$marker_name_str;
   $map = $marker_obj->map_id;
   $lg = $marker_obj->linkage_group_id;
@@ -283,7 +287,7 @@ function tripal_map_menu() {
   );
   
   $items['MapViewer'] = array(
-    'title' => 'MapViewer',
+    'title' => 'MapViewer Quick Start',
     'description' => 'View TripalMap MapViewer',
     'page callback' => 'tripal_map_mapviewer_landing_page',
     'access arguments' => array('view tripalmap mapviewer'),
@@ -336,11 +340,11 @@ function tripal_map_menu() {
     'type' => MENU_LOCAL_TASK,
   );
   $items['dotplot/%/%/%/%'] = array(
-    'title' => 'Dotplot',
-    'description' => 'View TripalMap Dotplot',
+    'title' => 'Dot Plot',
+    'description' => 'View TripalMap Dot Plot',
     'page callback' => 'tripal_map_dotplot_new_page',
     'page arguments' => array(1, 2, 3, 4),
-    'access arguments' => array('view tripalmap dotplot'),
+    'access arguments' => array('view tripalmap dot plot'),
     'type' => MENU_LOCAL_TASK,
   );
   $items['admin/tripal/extension/tripal_map'] = array(
@@ -415,8 +419,8 @@ function tripal_map_feature_node_page($id) {
 /**
  *
  * function: tripal_map_featuremap_node_page
- *	 Obtain the node id (nid) for the map with featuremap_id passed in URL path,
- *   load the corresponding Drupal node
+ *	 Obtain the node id (nid) or entity for the map with featuremap_id passed in URL path,
+ *   load the corresponding Drupal page
  *
  * @param $id
  *	 featuremap id for genetic marker or QTL/MTL associated map
@@ -428,28 +432,52 @@ function tripal_map_feature_node_page($id) {
  */
 function tripal_map_featuremap_node_page($id) {
 
+  $map_url = tripal_map_lookup_featuremap_page($id);
+  if ($map_url != '') {
+    drupal_goto($map_url);
+  }
+  else {
+	return drupal_not_found();
+  }
+  
+}
+
+/**
+ *
+ * function: tripal_map_lookup_featuremap_page
+ *	 Obtain the node id (nid) or entity for the map with featuremap_id passed in
+ *
+ * @param $id
+ *	 featuremap id for genetic marker or QTL/MTL associated map
+ *
+ * @return
+ *   Drupal page url
+ *
+ * @ingroup tripal_map_includes
+ */
+function tripal_map_lookup_featuremap_page($id) {
+
+  $map_url = '';
+
   // tripal v2 link (node)
   $data_table = 'featuremap';
   $nid = chado_get_nid_from_id ($data_table, $id);
   if ($nid) {
-    drupal_goto("/node/$nid");
+    $map_url = "/node/$nid";
   }
 	
   // tripal v3 link (entity)
   if (function_exists('chado_get_record_entity_by_table') && $id) {
     $entity_id = chado_get_record_entity_by_table($data_table, $id);
     if ($entity_id) {
-      drupal_goto("bio_data/" . $entity_id);
+      $map_url = "bio_data/" . $entity_id;
     }  	
-    else {
-      return drupal_not_found();
-    }
-  }
-  else {
-  	return drupal_not_found();
   }
   
+  return $map_url;
 }
+
+
 
 
 /**
@@ -551,7 +579,7 @@ function tripal_map_mapviewer_comparison_page($featuremap_ref_id, $linkage_group
   $linkage_group_comp = str_replace("_forwardslash_", "/", $linkage_group_comp);
   
   $args = array("featuremap_id" => $featuremap_ref_id, "linkage_group" => $linkage_group_ref, "featuremap_comp_id" => $featuremap_comp_id, "linkage_group_comp" => $linkage_group_comp); 
-  
+  //dpm($args, "tripal_map_mapviewer_comparison_page() args");
   $form = drupal_get_form('tripal_map_mapviewer_form',  $comparison_type, $args);
  
   return drupal_render($form);
@@ -560,7 +588,7 @@ function tripal_map_mapviewer_comparison_page($featuremap_ref_id, $linkage_group
 
 /**
  * function: tripal_map_dotplot_new_page
- *	 Renders the Dotplot form with reference (primary) and comparison (secondary) map and linkage group
+ *	 Renders the Dot Plot form with reference (primary) and comparison (secondary) map and linkage group
  *   and genetic marker parameters passed from the menu hook
  *
  * @param $featuremap_prim_id

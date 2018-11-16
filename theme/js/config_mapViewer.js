@@ -182,7 +182,7 @@ configMapViewer = {
 			//  markername2: [{"mapName": mn1, "lgName":lg1, "position":pos1},..],..}
 			var markerCorresHash = {};
 			var _this = this;
-			// iterate through all markers in all linkage groups
+			// iterate through all markers in all linkage groups and add each unique marker to the marker hash
 	        Object.keys(this.linkageGroups).forEach( function(linkageGroupName) {
 	        	Object.keys(_this.linkageGroups[linkageGroupName]).forEach( function(linkageGroupMapName) {
 		        		var linkageGroup = _this.getLinkageGroup(linkageGroupName, linkageGroupMapName);
@@ -390,6 +390,7 @@ configMapViewer = {
 							y: scaleRange(marker.pos), // y must be perturbed by the force model
 							y_init: scaleRange(marker.pos),
 							name: marker.getDisplayName(),
+							fullName: marker.getFullName(),
 							marker: marker,
 							displayOnQTL: QTL,
 							qtlMaxChrs: qtlLabelLen,
@@ -420,12 +421,17 @@ configMapViewer = {
 			this.nodes.forEach(function(node) {
 				var marker = node.marker;
 				
-				if (node.name in _this.markerCorrespondences) {
+				if (node.fullName in _this.markerCorrespondences) {
 			    	var corres = {"draw": false, "x1": 0, "x1_width":0,"y1": node.y, "x2": 0, "y2": 0, "x2_width":0}; 
 			    	
 			    	//obtain x1, y1
-			        var marker_names_ref_className_id = "marker_names_"+marker.linkageGroupMapId+"_"+marker.linkageGroupId+"_"+mapViewer.RectangleEnum.ZOOM+"_" + tripalMap.encodeHtmlIdAttrib(node.name);
-				    var marker_names_ref = svg.selectAll("#"+marker_names_ref_className_id);
+			    	var mnPrefix = "marker_names_";
+			    	if (node.displayOnQTL) {
+			    		mnPrefix = "QTL_marker_names_";
+			    	}
+			        var marker_names_ref_className_id = mnPrefix + marker.linkageGroupMapId + "_"+marker.linkageGroupId + "_"+mapViewer.RectangleEnum.ZOOM + "_" + tripalMap.encodeHtmlIdAttrib(node.fullName);
+			        var marker_names_ref = svg.selectAll("#"+marker_names_ref_className_id);
+			    
 				    var marker_names_ref_rect = "";
 				    if (marker_names_ref.node()) {
 				    	marker_names_ref_rect = marker_names_ref.node().getBoundingClientRect();
@@ -438,13 +444,13 @@ configMapViewer = {
 			    	// search markerData for linkageGroup.name and linkageGroup.mapName
 					// hash: {markername1: [{"mapName": mn1, "linkageGroupName":lg1, "position":pos1},{"mapName": mn2, "linkageGroupName":lg2, "position":pos2},..],
 					var linkageGroupComp = markerData.getLinkageGroup(marker.linkageGroupName, marker.mapName);
-					_this.markerCorrespondences[marker.name].forEach(function(markerComp) {
+					_this.markerCorrespondences[node.fullName].forEach(function(markerComp) {
 						if (((markerComp.mapName != marker.mapName) || (markerComp.linkageGroupName != marker.linkageGroupName))) {
 							linkageGroupComp = markerData.getLinkageGroup(markerComp.linkageGroupName, markerComp.mapName);
 						} 
 					});
 
-					var marker_names_comp_className = "marker_names_"+linkageGroupComp.mapId+"_"+linkageGroupComp.id+"_"+mapViewer.RectangleEnum.ZOOM+"_" + tripalMap.encodeHtmlIdAttrib(node.name);
+					var marker_names_comp_className = mnPrefix + linkageGroupComp.mapId + "_"+linkageGroupComp.id + "_"+mapViewer.RectangleEnum.ZOOM + "_" + tripalMap.encodeHtmlIdAttrib(node.fullName);
 					var marker_names_comp = svg.selectAll("#"+marker_names_comp_className);
 					var marker_names_comp_rect = "";
 					if (marker_names_comp.node()) {
@@ -453,6 +459,7 @@ configMapViewer = {
 						corres["y2"] = marker_names_comp_rect.y - svgrect.y + marker_names_comp_rect.height/2;
 					    corres["x2_width"] = marker_names_comp_rect.width;
 						corres["draw"] = true; // the node exists on the comparison linkage group. draw the correspondence
+				
 					}
 					if (!((marker.linkageGroupMapId == linkageGroupComp.mapId) && (marker.linkageGroupId == linkageGroupComp.id))) {
 						node["correspondences"] = corres;
@@ -504,6 +511,7 @@ configMapViewer = {
 				y: scale(marker.pos), // y must be perturbed by the force model
 				y_init: scale(marker.pos),
 				name: marker.getDisplayName(),
+				fullName: marker.getFullName(),
 				marker: marker,
 				displayOnQTL: QTL,
 				qtlMaxChrs: qtlLabelLen,
@@ -575,6 +583,9 @@ configMapViewer = {
 		getDisplayName() {
 			return this.name;
 		}
+		getFullName() {
+			return this.name;
+		}
 		getPos() {
 			return this.pos;
 		}
@@ -596,6 +607,9 @@ configMapViewer = {
 			this.color = markerColor;
 		}
 		getDisplayName() {
+			return this.name;
+		}
+		getFullName() {
 			return this.name;
 		}
 		getMaxPos() {
@@ -626,6 +640,9 @@ configMapViewer = {
 			//super.assignMarkerData(markerData);
 		}
 		getDisplayName() {
+			return this.name;
+		}
+		getFullName() {
 			return this.name;
 		}
 		getMaxPos () {
@@ -662,6 +679,9 @@ configMapViewer = {
 		}
 		getDisplayName() {
 			return this.nameAbbrev;
+		}
+		getFullName() {
+			return this.name;
 		}
 		getMaxPos() {
 			var maxPos = (this.stopPos) ? this.stopPos : (this.QTLPeak) ?  this.QTLPeak : (this.startPos) ? this.startPos : 0;
