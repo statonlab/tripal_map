@@ -1,7 +1,7 @@
 
 // Classes:
 //
-// Data (instantiated for Reference and Comparison chromosomes)
+// Marker data instantiated for Reference and Comparison chromosomes
 // 
 
 var configMapViewer = configMapViewer || {};
@@ -10,12 +10,12 @@ configMapViewer = {
 
 	MarkerData: class { 
 		constructor(markerTypeDisplayStates, markerTypeColorMap) {
-			this.linkageGroups = {}; // {linkageGroup: {mapName: {lg}}, linkageGroup2: {mapName2: {lg}}, ..}
+			this.linkageGroups = {}; // {linkageGroup: {mapName: {orientation: {lg}}}, linkageGroup2: {mapName2: {orientation: {lg}}}, ..}
 			this.markerTypeDisplayStates = JSON.parse(markerTypeDisplayStates);
 			this.markerTypeColorMap = markerTypeColorMap;
 		}
 		
-		addLinkageGroup(mapMarkerData, linkageGroupName, linkageGroupMapName, linkageGroupId, mapId) {
+		addLinkageGroup(mapMarkerData, linkageGroupName, linkageGroupMapName, linkageGroupId, mapId, orientation) {
 			var lgroups = this.linkageGroups;
 			var markerTypeDisplayStates = this.markerTypeDisplayStates;
 			var markerTypeColorMap = this.markerTypeColorMap;
@@ -46,32 +46,42 @@ configMapViewer = {
 				if (!(linkageGroupName in lgroups)) {
 					// no linkage group of that name exists already
 					lgroups[linkageGroupName] = {};
-					linkageGroup = new configMapViewer.LinkageGroup( linkageGroupName, linkageGroupMapName, linkageGroupId, mapId);
-					lgroups[linkageGroupName][linkageGroupMapName] = linkageGroup;
-					lgroups[linkageGroupName][linkageGroupMapName].addMarker(markerData, linkageGroupMapName, markerDisplayState, markerColor);
+					lgroups[linkageGroupName][linkageGroupMapName] = {};
+					linkageGroup = new configMapViewer.LinkageGroup(linkageGroupName, linkageGroupMapName, linkageGroupId, mapId, orientation);
+					lgroups[linkageGroupName][linkageGroupMapName][orientation] = linkageGroup;
+					lgroups[linkageGroupName][linkageGroupMapName][orientation].addMarker(markerData, linkageGroupMapName, markerDisplayState, markerColor);
 				}
 				else if ((linkageGroupName in lgroups) && 
 				    (!(linkageGroupMapName in lgroups[linkageGroupName]))) { 
+					lgroups[linkageGroupName][linkageGroupMapName] = {};
 					// a linkage group of that name exists but it is from a different map
-					linkageGroup = new configMapViewer.LinkageGroup( linkageGroupName, linkageGroupMapName, linkageGroupId, mapId);
-					lgroups[linkageGroupName][linkageGroupMapName] = linkageGroup;
-					lgroups[linkageGroupName][linkageGroupMapName].addMarker(markerData, linkageGroupMapName, markerDisplayState, markerColor);
+					linkageGroup = new configMapViewer.LinkageGroup( linkageGroupName, linkageGroupMapName, linkageGroupId, mapId, orientation);
+					lgroups[linkageGroupName][linkageGroupMapName][orientation] = linkageGroup;
+					lgroups[linkageGroupName][linkageGroupMapName][orientation].addMarker(markerData, linkageGroupMapName, markerDisplayState, markerColor);
+				}
+				else if ((linkageGroupName in lgroups) && 
+					((linkageGroupMapName in lgroups[linkageGroupName])) && 
+				    (!(orientation in lgroups[linkageGroupName][linkageGroupMapName]))) {
+					// a linkage group of that name exists from the same map but a different orientation
+					linkageGroup = new configMapViewer.LinkageGroup( linkageGroupName, linkageGroupMapName, linkageGroupId, mapId, orientation);
+					lgroups[linkageGroupName][linkageGroupMapName][orientation] = linkageGroup;
+					lgroups[linkageGroupName][linkageGroupMapName][orientation].addMarker(markerData, linkageGroupMapName, markerDisplayState, markerColor);
 				}
 				else {
 					// the linkage group already exists. Add the new marker
-					lgroups[linkageGroupName][linkageGroupMapName].addMarker(markerData, linkageGroupMapName, markerDisplayState, markerColor);
+					lgroups[linkageGroupName][linkageGroupMapName][orientation].addMarker(markerData, linkageGroupMapName, markerDisplayState, markerColor);
 				}
 			});
 
-			this.organizeQTLs(linkageGroupName, linkageGroupMapName);
+			this.organizeQTLs(linkageGroupName, linkageGroupMapName, orientation);
 		}
 
-		organizeQTLs(linkageGroupName, linkageGroupMapName) {
-			// now that all qtl markers are added to linkageGroup QTLs, place QTLs into QTLLanes object. 
+		organizeQTLs(linkageGroupName, linkageGroupMapName, orientation) {
+			// Now that all qtl markers are added to linkageGroup QTLs, place QTLs into QTLLanes object. 
 			// It contains qtl marker references to qtls, with qtls organized in lanes. 
 			// Seek optimal packing, and if multiple qtls with the same start and end position exist, 
 			// superimpose them in the same lane.
-			var linkageGroup = this.getLinkageGroup(linkageGroupName, linkageGroupMapName);
+			var linkageGroup = this.getLinkageGroup(linkageGroupName, linkageGroupMapName, orientation);
 				
 			// sort the QTLs by markerMinPos, then by markerMaxPos
 			var QTLs = linkageGroup.QTLs; //{markerMinPos: {markerMaxPos: [marker1, marker2, ..], markerMaxPos2: [marker1, marker2,..]}, ..}
@@ -165,36 +175,36 @@ configMapViewer = {
 
 		
 		findCorrespondences() {
-			// acts on all linkage groups member data  
+			// Acts on all linkage groups member data  
 			// hash all markers according to name. keep only those with multiple occurrences (in multiple linkage groups)
 			// hash format: 
 			// {markername1: [{"mapName": mn1, "lgName":lg1, "position":pos1}, {"mapName": mn2, "lgName":lg2, "position":pos2},..],
 			//  markername2: [{"mapName": mn1, "lgName":lg1, "position":pos1},..],..}
 			var markerCorresHash = {};
 			var _this = this;
-			// iterate through all markers in all linkage groups
+			// iterate through all markers in all linkage groups and add each unique marker to the marker hash
 	        Object.keys(this.linkageGroups).forEach( function(linkageGroupName) {
 	        	Object.keys(_this.linkageGroups[linkageGroupName]).forEach( function(linkageGroupMapName) {
-	        		var linkageGroup = _this.linkageGroups[linkageGroupName][linkageGroupMapName];
-	        		Object.keys(linkageGroup.markers).forEach( function(markerName) {
-	        			Object.keys(linkageGroup.markers[markerName]).forEach( function(markerPos) {
-	        				var marker = linkageGroup.markers[markerName][markerPos];
-	        				if (markerName in markerCorresHash) {
-	        					markerCorresHash[markerName].push({"mapName": linkageGroupMapName, 
-	        						"linkageGroupName": linkageGroupName, "position": markerPos });
-	        				}
-	        				else {
-	        					markerCorresHash[markerName] = [];
-	        					markerCorresHash[markerName].push({"mapName": linkageGroupMapName, 
-	        						"linkageGroupName": linkageGroupName, "position": markerPos });
-	        				}
-	        			});
-	        		});
+		        		var linkageGroup = _this.getLinkageGroup(linkageGroupName, linkageGroupMapName);
+		        			Object.keys(linkageGroup.markers).forEach( function(markerName) {
+		        				Object.keys(linkageGroup.markers[markerName]).forEach( function(markerPos) {
+		        					var marker = linkageGroup.markers[markerName][markerPos];
+		        					if (markerName in markerCorresHash) {
+		        						markerCorresHash[markerName].push({"mapName": linkageGroupMapName, 
+		        							"linkageGroupName": linkageGroupName, "position": markerPos });
+		        					}
+		        					else {
+		        						markerCorresHash[markerName] = [];
+		        						markerCorresHash[markerName].push({"mapName": linkageGroupMapName, 
+		        							"linkageGroupName": linkageGroupName, "position": markerPos });
+		        					}
+		        				});
+		        			});
+		       		});
 	        	});
-	        });
 
 	        var markerCorrespondences = {};
-	        Object.keys(markerCorresHash).forEach( function(markerName){
+	        Object.keys(markerCorresHash).forEach( function(markerName) {
 	        	if ((markerCorresHash[markerName].length) > 1) {
 	        		markerCorrespondences[markerName] = markerCorresHash[markerName];
 	        	}
@@ -202,8 +212,8 @@ configMapViewer = {
 
 	        Object.keys(this.linkageGroups).forEach( function(linkageGroupName) {
 	        	Object.keys(_this.linkageGroups[linkageGroupName]).forEach( function(linkageGroupMapName) {
-	        		var linkageGroup = _this.linkageGroups[linkageGroupName][linkageGroupMapName];
-	        		linkageGroup.markerCorrespondences = markerCorrespondences;
+	        		var linkageGroup = _this.getLinkageGroup(linkageGroupName, linkageGroupMapName);
+	        			linkageGroup.markerCorrespondences = markerCorrespondences;
 	        	});
 	        });
 
@@ -233,10 +243,16 @@ configMapViewer = {
 			return this.markerTypesWithColors;
 		}
 
-		getLinkageGroup(linkageGroupName, linkageGroupMapName) {
+		getLinkageGroup(linkageGroupName, linkageGroupMapName, orientation=null ) {
 			var ret = false;
-			if (linkageGroupName in this.linkageGroups) {
-				ret = this.linkageGroups[linkageGroupName][linkageGroupMapName];
+			if ((linkageGroupName in this.linkageGroups) && 
+				(linkageGroupMapName in this.linkageGroups[linkageGroupName])) {
+				if (orientation == null) {
+					Object.keys(this.linkageGroups[linkageGroupName][linkageGroupMapName]).forEach( function(linkageGroupOrientation) {
+						orientation = linkageGroupOrientation;
+					});
+				}
+				ret = this.linkageGroups[linkageGroupName][linkageGroupMapName][orientation];
 			}
 			return ret; 
 		}
@@ -252,9 +268,10 @@ configMapViewer = {
 			else {
 				// get the set of marker types for all linkage groups
 				var lgroups = this.linkageGroups;
+				var _this = this;
 				Object.keys(this.linkageGroups).forEach(function(linkageGroupName) {
 					Object.keys(lgroups[linkageGroupName]).forEach(function(linkageGroupMapName) {
-						var linkageGroup = lgroups[linkageGroupName][linkageGroupMapName]; 
+						var linkageGroup = _this.getLinkageGroup(linkageGroupName, linkageGroupMapName);  
 						markerTypes = new Set(function*() { yield* markerTypes; yield* linkageGroup.markerTypes; }());
 					});
 				});
@@ -265,11 +282,12 @@ configMapViewer = {
 	
 	// data classes
 	LinkageGroup: class {
-		constructor(linkageGroupName, linkageGroupMapName, linkageGroupId, mapId) {
+		constructor(linkageGroupName, linkageGroupMapName, linkageGroupId, mapId, orientation) {
 			this.name = linkageGroupName;
 			this.mapName = linkageGroupMapName;
 			this.id = linkageGroupId;
 			this.mapId = mapId;
+			this.orientation = orientation;
 			this.markersMaxPos = 0;
 			this.markerTypes = new Set();
 			this.markers = {}; 		// {markerName: {markerPos: marker}, markerName2: {markerPos: marker},..}
@@ -310,10 +328,10 @@ configMapViewer = {
 		}
 
 		addQTL(marker, markerName, markerPos) {
-			// QTLs is an object, which stores the QTLs according to start and end position
-			// if start and end position are the same, put them in the same array. Else just have a one element array
+			// QTLs is an object which stores the QTLs according to start and end position
+			// if start and end position are the same, put them in the same array. Else use a one element array
 			// after all qtls are added to QTLs
-			//this.QTLs = {};  {markerMinPos: {markerMaxPos: [marker1, marker2, ..], markerMaxPos2: [marker1, marker2,..]}, ..}
+			// this.QTLs = {markerMinPos: {markerMaxPos: [marker1, marker2, ..], markerMaxPos2: [marker1, marker2,..]}, ..}
 			var markerMinPos = marker.getMinPos();
 			var markerMaxPos = marker.getMaxPos();
 			if (!(markerMinPos in this.QTLs)) {
@@ -372,6 +390,7 @@ configMapViewer = {
 							y: scaleRange(marker.pos), // y must be perturbed by the force model
 							y_init: scaleRange(marker.pos),
 							name: marker.getDisplayName(),
+							fullName: marker.getFullName(),
 							marker: marker,
 							displayOnQTL: QTL,
 							qtlMaxChrs: qtlLabelLen,
@@ -402,13 +421,17 @@ configMapViewer = {
 			this.nodes.forEach(function(node) {
 				var marker = node.marker;
 				
-				if (node.name in _this.markerCorrespondences) {
+				if (node.fullName in _this.markerCorrespondences) {
 			    	var corres = {"draw": false, "x1": 0, "x1_width":0,"y1": node.y, "x2": 0, "y2": 0, "x2_width":0}; 
 			    	
 			    	//obtain x1, y1
-			        var marker_names_ref_className_id = "marker_names_"+marker.linkageGroupMapId+"_"+marker.linkageGroupId+"_"+mapViewer.RectangleEnum.ZOOM+"_" + encodeURIComponent(node.name);
-			        var marker_names_ref_className = "marker_names_"+marker.linkageGroupMapId+"_"+marker.linkageGroupId+"_"+mapViewer.RectangleEnum.ZOOM;
-				    var marker_names_ref = svg.selectAll("#"+marker_names_ref_className_id);
+			    	var mnPrefix = "marker_names_";
+			    	if (node.displayOnQTL) {
+			    		mnPrefix = "QTL_marker_names_";
+			    	}
+			        var marker_names_ref_className_id = mnPrefix + marker.linkageGroupMapId + "_"+marker.linkageGroupId + "_"+mapViewer.RectangleEnum.ZOOM + "_" + tripalMap.encodeHtmlIdAttrib(node.fullName);
+			        var marker_names_ref = svg.selectAll("#"+marker_names_ref_className_id);
+			    
 				    var marker_names_ref_rect = "";
 				    if (marker_names_ref.node()) {
 				    	marker_names_ref_rect = marker_names_ref.node().getBoundingClientRect();
@@ -421,13 +444,13 @@ configMapViewer = {
 			    	// search markerData for linkageGroup.name and linkageGroup.mapName
 					// hash: {markername1: [{"mapName": mn1, "linkageGroupName":lg1, "position":pos1},{"mapName": mn2, "linkageGroupName":lg2, "position":pos2},..],
 					var linkageGroupComp = markerData.getLinkageGroup(marker.linkageGroupName, marker.mapName);
-					_this.markerCorrespondences[marker.name].forEach(function(markerComp) {
-						if ((markerComp.mapName != marker.mapName) || (markerComp.linkageGroupName != marker.linkageGroupName)) {
+					_this.markerCorrespondences[node.fullName].forEach(function(markerComp) {
+						if (((markerComp.mapName != marker.mapName) || (markerComp.linkageGroupName != marker.linkageGroupName))) {
 							linkageGroupComp = markerData.getLinkageGroup(markerComp.linkageGroupName, markerComp.mapName);
 						} 
 					});
 
-					var marker_names_comp_className = "marker_names_"+linkageGroupComp.mapId+"_"+linkageGroupComp.id+"_"+mapViewer.RectangleEnum.ZOOM+"_" + encodeURIComponent(node.name);
+					var marker_names_comp_className = mnPrefix + linkageGroupComp.mapId + "_"+linkageGroupComp.id + "_"+mapViewer.RectangleEnum.ZOOM + "_" + tripalMap.encodeHtmlIdAttrib(node.fullName);
 					var marker_names_comp = svg.selectAll("#"+marker_names_comp_className);
 					var marker_names_comp_rect = "";
 					if (marker_names_comp.node()) {
@@ -436,8 +459,14 @@ configMapViewer = {
 						corres["y2"] = marker_names_comp_rect.y - svgrect.y + marker_names_comp_rect.height/2;
 					    corres["x2_width"] = marker_names_comp_rect.width;
 						corres["draw"] = true; // the node exists on the comparison linkage group. draw the correspondence
+				
 					}
-					node["correspondences"] = corres;
+					if (!((marker.linkageGroupMapId == linkageGroupComp.mapId) && (marker.linkageGroupId == linkageGroupComp.id))) {
+						node["correspondences"] = corres;
+					}
+					else{
+						node["correspondences"] = {"draw": false, "x1": 0, "x1_width":0,"y1": node.y, "x2": 0, "y2": 0, "x2_width":0};
+					}
 					
 			    }
 			});
@@ -452,7 +481,7 @@ configMapViewer = {
 			Object.keys(this.markers).forEach(function(markerName) {
 				Object.keys(_this.markers[markerName]).forEach( function(markerPos) {
 					var marker = _this.markers[markerName][markerPos];
-					if ((scaleRange(marker.pos) > -4 & scaleRange(marker.pos) < chrRectHeight + 4) && (marker.displayState == "Show")){
+					if ((scaleRange(marker.pos) > -4 & scaleRange(marker.pos) < chrRectHeight + 4) && (marker.displayState == "Show")) {
 						_this.setNodeAndLink(marker, scaleRange);
 					}
 				});
@@ -482,6 +511,7 @@ configMapViewer = {
 				y: scale(marker.pos), // y must be perturbed by the force model
 				y_init: scale(marker.pos),
 				name: marker.getDisplayName(),
+				fullName: marker.getFullName(),
 				marker: marker,
 				displayOnQTL: QTL,
 				qtlMaxChrs: qtlLabelLen,
@@ -547,10 +577,13 @@ configMapViewer = {
 			this.pos = 0;
 			this.name = markerData.genetic_marker_name;
 		}
-		assignMarkerData(markerData){
+		assignMarkerData(markerData) {
 			return markerData;
 		}
 		getDisplayName() {
+			return this.name;
+		}
+		getFullName() {
 			return this.name;
 		}
 		getPos() {
@@ -572,10 +605,12 @@ configMapViewer = {
 			this.feature_id = markerData.feature_id;		
 			this.displayState = markerDisplayState;
 			this.color = markerColor;
-            this.url = markerData.feature_url || null;
-
-        }
+			this.url = markerData.feature_url;
+		}
 		getDisplayName() {
+			return this.name;
+		}
+		getFullName() {
 			return this.name;
 		}
 		getMaxPos() {
@@ -600,12 +635,16 @@ configMapViewer = {
 			this.feature_id = markerData.feature_id;		
 			this.displayState = markerDisplayState;
 			this.color = markerColor;
+			this.url = markerData.feature_url;
 		}
 		// subclassed method which overrides their superclass method of the same name.
 		assignMarkerData(markerData) {
 			//super.assignMarkerData(markerData);
 		}
 		getDisplayName() {
+			return this.name;
+		}
+		getFullName() {
 			return this.name;
 		}
 		getMaxPos () {
@@ -636,12 +675,16 @@ configMapViewer = {
 			this.maxPos = this.getMaxPos();
 			this.minPos = this.getMinPos();
 			this.pos = this.minPos;
+			this.url = markerData.feature_url;
 		}
-		// subclassed method which overrides their superclass method of the same name.
+		// subclassed method which overrides superclass method of the same name.
 		assignMarkerData(markerData) {
 		}
 		getDisplayName() {
 			return this.nameAbbrev;
+		}
+		getFullName() {
+			return this.name;
 		}
 		getMaxPos() {
 			var maxPos = (this.stopPos) ? this.stopPos : (this.QTLPeak) ?  this.QTLPeak : (this.startPos) ? this.startPos : 0;

@@ -3,7 +3,7 @@
 /**
  * @file
  *	 Create form that displays the MapViewer landing page
- *	 Displays the toolbars select organism, map and linkage group and link to the correspondences matrix
+ *	 Displays the select organism, map and linkage group toolbars and links to the correspondences matrix
  * 
  * @ingroup tripal_map
  */
@@ -34,10 +34,9 @@ function tripal_map_mapviewer_landing_page_form($form, &$form_state) {
   $form['landing_page']['intro'] = array(
     // Brief description of what MapViewer is.
     '#markup' => '<div id="mapviewer_intro">
-      <p>MapViewer is an interactive and responsive visualization
-      tool for viewing and comparing genetic maps. MapViewer uses TripalMap, a Tripal extension module 
-  	  based on D3.js Javascript technology and takes data directly stored from GMOD-Chado, a 
-  	  generic database schema.</p></div>',/* Functionality:
+      <p>MapViewer is a graphical tool for viewing and comparing genetic maps. It includes dynamically scrollable maps, correspondence
+       matrices, dot plots, links to details about map features, and exporting functionality.  It was developed by the MainLab at Washington State
+       University and is available for download for use in other Tripal databases.  </p></div>',/* Functionality:
       1. interfaces show all linkage groups of a map, with zoom into specific regions of a linkage group,
       2. comparisons of maps that share the same markers are displayed.
       */
@@ -50,27 +49,7 @@ function tripal_map_mapviewer_landing_page_form($form, &$form_state) {
   tripal_map_form_landing_page_map_bar_init($form, $form_state, $select_options, $featuremap_id, $linkage_group);
   tripal_map_form_add_landing_page_map_bar($form, $form_state, $select_options);
   
-  // Create the Correspondence Matrix link
-  $ref_map = tripal_map_get_elem($form_state['storage'], 'maps_key');
-  $comp_map = 0;
-  $ak = array_keys($select_options['map_org']);
-  if (!empty($ak)) {
-  	$comp_map = $ak[0];
-    if ((count($ak) > 1) && ($comp_map == $ref_map)) {
-  	  $comp_map = $ak[1];
-    }
-  }
-  $correspondence_matrix_url = "/correspondence_matrix/".$ref_map."/".$comp_map;
   
-  $form['landing_page']['toolbar']['correspondence_matrix'] = array(
-    '#type' => 'container',
-    '#prefix' => '<div id="show_lp_correspondence_matrix" class="TripalMap">
-      <h3><a id="lp_correspondence_matrix_link" href= '.$correspondence_matrix_url.' target="_blank"
-      title="Correspondence Matrix">View Correspondence Matrix</a></h3>',
-	'#suffix' => '</div>',
-  	'#collapsible' => FALSE,
-  );
-  		
   $form['landing_page']['usage'] = array(
     '#type' => 'container',
     '#attributes' => array(
@@ -81,25 +60,77 @@ function tripal_map_mapviewer_landing_page_form($form, &$form_state) {
 
   $video_tut_link = variable_get('tripal_map_video_tutorial_link', t(''));
   $text_tut_link = variable_get('tripal_map_text_tutorial_link', t(''));
+  
+  // obtain the sample map tutorial link
   $sample_map_tut_link = variable_get('tripal_map_sample_map_tutorial_link', t(''));
-  if ($sample_map_tut_link == '') {
-  	$sql = "
+  $sample_map_id = "";
+  if ($sample_map_tut_link != '') {
+    if (substr($sample_map_tut_link, 0, 4) == "http") {
+      // if the sample map path is a fully formed path ex. "https://.." leave it as is  
+    }
+    else {
+      // a partial/relative path is provided, extract the map identifier
+      $sample_map_id = preg_replace('/[^0-9]/', '', $sample_map_tut_link);
+      $sample_map_tut_link = tripal_map_lookup_featuremap_page($sample_map_id);
+    }
+  }
+  else {
+    // the sample map path is unspecified by the user. Obtain the first map from the mview
+    $sql = "
       SELECT map_id FROM {tripal_map_genetic_markers_mview}
       UNION
       SELECT map_id FROM {tripal_map_qtl_and_mtl_mview}
     ";
-
+   
     $results = chado_query($sql);
     $pos = $results->fetchObject();
     $sample_map_id = $pos->map_id;
-    $sample_map_tut_link = '/featuremap/'.$sample_map_id;
+    $sample_map_tut_link = tripal_map_lookup_featuremap_page($sample_map_id);
+   
   }
 
+  // Create the Correspondence Matrix link
+  $ref_map = tripal_map_get_elem($form_state['storage'], 'maps_key');
+  $comp_map = 0;
+  $map_org = $select_options['map_org'];
+  $ak = array_keys($map_org);
+  if (!empty($ak)) {
+      $comp_map = $ak[0];
+      if ((count($ak) > 1) && ($comp_map == $ref_map)) {
+          $comp_map = $ak[1];
+      }
+  }
+  $correspondence_matrix_url = "/correspondence_matrix/".$ref_map."/".$comp_map;
+  
+  // Create the Dot Plot link
+  $dotplot_url = variable_get('tripal_map_sample_dotplot_tutorial_link', t('')); 
+  if ($dotplot_url == '') {
+    // The default dot plot is unspecified by the user. Obtain the first map/lg comparison
+    $ref_lg_id = reset($map_org[$ref_map]['linkage_groups']);
+    $select_options_comp = tripal_map_create_comparison_options($select_options, $ref_map, $ref_lg_id);
+    $comp_org = key(tripal_map_get_elem($select_options_comp, 'options_org'));
+    $comp_map = key($select_options_comp['options_map'][$comp_org]);
+    $comp_lg_id = key($select_options_comp['options_chr'][$comp_org][$comp_map]);
+    $dotplot_url = "/dotplot/".$ref_map."/".$ref_lg_id."/".$comp_map."/".$comp_lg_id;
+  }
+  else {
+    if (substr($dotplot_url, 0, 4) == "http") {
+      // if the sample dot plot path is a fully formed path ex. "https://.." leave it as is
+    }
+    else {
+      $dotplot_url =  '/dotplot' . $dotplot_url;
+    }
+  }
+  $example_export_url = variable_get('tripal_map_example_exported_figures_tutorial_link', t('')); //'/MapViewer_Exports';
+  
   $form['landing_page']['usage']['title'] = array(
-    '#markup' => '<div><h3>Learn How to Use MapViewer</h3>
+    '#markup' => '<div><h3>Learn more about MapViewer</h3>
     <ul><li id="video_tutorial"><a href="' . $video_tut_link . '" target="_blank">Video tutorial</a></li>
     <li id="user_manual"><a href="' . $text_tut_link . '" target="_blank">User Manual</a></li>
-    <li id="sample_map"><a href="' . $sample_map_tut_link . '" target="_blank">Sample Map</a></li>
+    <li id="sample_map"><a href="' . $sample_map_tut_link . '" target="_blank">View sample map</a></li>
+    <li id="sample_correspondence_matrix"><a href="' . $correspondence_matrix_url . '" target="_blank">View example correspondence matrix</a></li>
+    <li id="sample_dotplot"><a href="' . $dotplot_url . '" target="_blank">View example dot plot</a></li>
+    <li id="sample_exported_figures"><a href="' . $example_export_url . '" target="_blank">View example exported figures</a></li>
     </ul></div>',
   );
   
@@ -173,6 +204,7 @@ function tripal_map_form_landing_page_map_bar_init( &$form, &$form_state, $selec
  *
  * @param $form_state
  *   The current state of the form. The values and storage that were submitted
+ *   
  * @param $select_options
  *
  * @return
@@ -194,10 +226,18 @@ function tripal_map_form_add_landing_page_map_bar(&$form, &$form_state, $select_
 	
   $form['landing_page']['toolbar'] = array(
     '#type' => 'container',
-    '#prefix' => '<div id="select_organism" class="TripalMap"><h3 class="reference">Select a Map</h3>',
+    '#prefix' => '<div id="select_organism" class="TripalMap"><h3 class="reference">
+    Select A Map To Start Using MapViewer</h3>',
     '#suffix' => '</div>',
     '#collapsible' => FALSE,
   );
+  
+  $form['landing_page']['toolbar']['info'] = array(
+      '#markup' => '<div id= "mapviewer_toolbar_info">
+      <p>When the "Submit" button is clicked, a new page for that map will open 
+      and on that page a second linkage group for comparison can be selected.</p></div>',
+  );
+  
 
   $form['landing_page']['toolbar']['map_select_frame'] = array(
     '#type' => 'container',

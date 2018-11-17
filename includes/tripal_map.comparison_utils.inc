@@ -2,7 +2,7 @@
 
 /**
  * @file
- *	 Create toolbars for comparison select organism, map and linkage group for the MapViewer forms.
+ *	 Create map comparison toolbars for select organism, map and linkage group for the MapViewer forms.
  *
  * @ingroup tripal_map
  */
@@ -20,7 +20,7 @@
  *
  * @ingroup tripal_map_includes
  */
-function tripal_map_init_organism_comparison_selectors_from_storage(&$form_state, $select_options_corres, $featuremap_id_comparison, $linkage_group_comparison) {
+function tripal_map_init_organism_comparison_selectors_from_storage(&$form_state, $select_options_corres, $featuremap_id_comparison, $linkage_group_id_comparison) {
 
   $map_org_comp = $select_options_corres['map_org'];
 
@@ -39,19 +39,18 @@ function tripal_map_init_organism_comparison_selectors_from_storage(&$form_state
   if ((tripal_map_get_form_trigger($form_state) == 'Submit_Comparison') || (tripal_map_get_form_trigger($form_state) == 'Submit_Reference')) {
     $submit = TRUE;
   }
-  if (!$submit) {
+  /*if (!$submit) {
     tripal_map_update_storage($form_state, 'org_comp_all', tripal_map_get_elem($select_options_corres, 'options_org'), TRUE);
     tripal_map_update_storage($form_state, 'maps_comp_all', tripal_map_get_elem($select_options_corres, 'options_map'), TRUE);
     tripal_map_update_storage($form_state, 'chr_comp_all', tripal_map_get_elem($select_options_corres, 'options_chr'), TRUE);
-  }
+  }*/
   // by default, do not show comparison. set to false if flag does not exist.
   tripal_map_update_storage($form_state, 'show_comp', FALSE, FALSE);
-
+  
   // take the first organism as default
   if (!$submit) {
     tripal_map_update_storage($form_state, 'org_compkey', key(tripal_map_get_elem($select_options_corres, 'options_org')), TRUE);
     if ((isset($featuremap_id_comparison) && strlen($featuremap_id_comparison) > 0 ) ) {
-
       // if featuremap id is available, lookup the associated organism and use that as default
       tripal_map_update_storage($form_state, 'org_compkey', tripal_map_get_organism_id($map_org_comp, $featuremap_id_comparison), TRUE);
     }
@@ -70,10 +69,11 @@ function tripal_map_init_organism_comparison_selectors_from_storage(&$form_state
     // use the first chromosome as a default
     tripal_map_update_storage($form_state, 'chr_compkey', key($select_options_corres['options_chr'][$fs_storage['org_compkey']][$fs_storage['maps_compkey']]), TRUE);
     if ((isset($featuremap_id_comparison) && strlen($featuremap_id_comparison) > 0 ) &&
-      (isset($linkage_group_comparison) && strlen($linkage_group_comparison) > 0 )) {
-      tripal_map_update_storage($form_state, 'chr_compkey', get_chr_id($map_org_comp, $featuremap_id_comparison, $linkage_group_comparison), TRUE);
+      (isset($linkage_group_id_comparison) && strlen($linkage_group_id_comparison) > 0 )) {
+          tripal_map_update_storage($form_state, 'chr_compkey', $linkage_group_id_comparison, TRUE );//get_chr_id($map_org_comp, $featuremap_id_comparison, $linkage_group_comparison), TRUE);
     }
   }
+  
 }
 
 
@@ -98,10 +98,10 @@ function tripal_map_init_organism_comparison_selectors_from_storage(&$form_state
  * @ingroup tripal_map_includes
  */
 function tripal_map_form_organism_comparison_bar_init( &$form, &$form_state, $select_options_corres, 
-      &$featuremap_id_comparison, &$linkage_group_comparison, &$features_comparison, &$show_comp) {
+      &$featuremap_id_comparison, &$linkage_group_name_comparison, &$features_comparison, &$show_comp) {
 
   $fs_storage =& $form_state['storage'];
-
+  
   // check if there was a trigger in the reference toolbar
   $ref_trigger = FALSE; 
   if ((tripal_map_get_form_trigger($form_state) == 'select_organism') || 
@@ -109,31 +109,39 @@ function tripal_map_form_organism_comparison_bar_init( &$form, &$form_state, $se
     (tripal_map_get_form_trigger($form_state) == 'select_chromosome')) {
     $ref_trigger = TRUE;
   }
+
+  $submit = FALSE;
+  if ((tripal_map_get_form_trigger($form_state) == 'Submit_Comparison') && (tripal_map_get_form_trigger($form_state) == 'Submit_Reference')) {
+      $submit = TRUE;
+  }
   
   // by default pick the first element of each select list
   $org_id = key(tripal_map_get_elem($select_options_corres, 'options_org'));
   $featuremap_id_comparison = key($select_options_corres['options_map'][$org_id]);
+  
+  
   if (array_key_exists('maps_compkey', $form_state['storage']) && !$ref_trigger) {
-    $featuremap_id_comparison = $fs_storage['maps_compkey'];
+      $featuremap_id_comparison = $fs_storage['maps_compkey'];
+  }
+  
+  $linkage_group_id_comparison = "";
+  if (!$ref_trigger && !$submit) {
+    $linkage_group_id_comparison = key($select_options_corres['options_chr'][$org_id][$featuremap_id_comparison]);
+    if (array_key_exists('chr_compkey', $form_state['storage'])) {
+        $linkage_group_id_comparison = $fs_storage['chr_compkey'];
+    }
   } 
-  
-  // get the linkage group name from id, in case not already present in storage
-  //$linkage_group_key = "";
-  
+    
   // initialize the values for select lists for organism, map and linkage group, if none are
   // currently set. None are set if form_state storage for these is uninitialized.
   tripal_map_init_organism_comparison_selectors_from_storage($form_state, $select_options_corres, 
-  		$featuremap_id_comparison, $linkage_group_comparison);
+      $featuremap_id_comparison, $linkage_group_id_comparison);
 
   $org_compkey =& $fs_storage['org_compkey'];
   $maps_compkey =& $fs_storage['maps_compkey'];
   $chr_compkey =& $fs_storage['chr_compkey'];
   $show_comp =& $fs_storage['show_comp'];
-
-  $submit = FALSE;
-  if ((tripal_map_get_form_trigger($form_state) == 'Submit_Comparison') && (tripal_map_get_form_trigger($form_state) == 'Submit_Reference')) {
-    $submit = TRUE;
-  }
+  
   if (!$submit) {
     // if the reference map is updated, then set the comparison map to new defaults correspondingly 
     tripal_map_update_storage($form_state, 'org_comp', tripal_map_get_elem($select_options_corres, 'options_org'), TRUE);
@@ -158,7 +166,7 @@ function tripal_map_form_organism_comparison_bar_init( &$form, &$form_state, $se
 
   if (tripal_map_get_form_trigger($form_state) == 'select_chromosome_comparison') {
     // the chromosome comparison selection item has changed
-    tripal_map_update_storage($form_state, 'chr_compkey', $form_state['triggering_element']['#value'], TRUE);
+      tripal_map_update_storage($form_state, 'chr_compkey', $form_state['triggering_element']['#value'], TRUE);
   }
 
   if (tripal_map_get_form_trigger($form_state) == 'show_comparison') {
@@ -173,8 +181,8 @@ function tripal_map_form_organism_comparison_bar_init( &$form, &$form_state, $se
   $form['organism_comparison']['map_chr_comparison']['select_chromosome_comparison']['#default_value'] = $chr_compkey;
   $form['organism_comparison']['#disabled'] = !$show_comp;
 
-  $linkage_group_comparison = tripal_map_get_lg_name_from_id($form_state, $org_compkey, $maps_compkey, $chr_compkey);
-  tripal_map_update_storage($form_state, 'linkage_group_comparison', $linkage_group_comparison, TRUE);
+  $linkage_group_name_comparison = tripal_map_get_lg_name_from_id($form_state, $org_compkey, $maps_compkey, $chr_compkey);
+  tripal_map_update_storage($form_state, 'linkage_group_comparison', $linkage_group_name_comparison, TRUE);
   tripal_map_update_storage($form_state, 'featuremap_id_comparison', $maps_compkey, TRUE);
 
   // get marker data based on featuremap_id and linkage group selected from drop lists
@@ -182,18 +190,12 @@ function tripal_map_form_organism_comparison_bar_init( &$form, &$form_state, $se
     $featuremap_id_comparison = $fs_storage['featuremap_id_comparison'];
   }
   if (array_key_exists('linkage_group_comparison', $fs_storage)) {
-    $linkage_group_comparison = $fs_storage['linkage_group_comparison'];
+    $linkage_group_name_comparison = $fs_storage['linkage_group_comparison'];
   }
-  
   $organism_id_comparison = $org_compkey;
 
   $features_comparison = tripal_map_create_features($featuremap_id_comparison, $chr_compkey, $organism_id_comparison);
-  //$features_comparison = tripal_map_create_features($featuremap_id_comparison, $linkage_group_comparison, $organism_id_comparison);
-
-  if (count($features_comparison) <= 0) {
-    return $form;
-  }
-
+  
   return $form;
 }
 
@@ -219,7 +221,7 @@ function tripal_map_form_add_organism_comparison_bar(&$form, &$form_state, $sele
 
   $fs_storage =& $form_state['storage'];
   
-  // Add the dotplot to the top of the Control panel, now that ref map and chr is available
+  // Add the dot plot to the top of the Control panel, now that ref map and chr is available
   $dotplot_icon = '/' . drupal_get_path('module', 'tripal_map') . '/theme/images/dotplot.png';
   $ref_map = tripal_map_get_elem($fs_storage, 'maps_key');
   $ref_chr = tripal_map_get_elem($fs_storage, 'chr_key');
@@ -229,14 +231,10 @@ function tripal_map_form_add_organism_comparison_bar(&$form, &$form_state, $sele
   $form['dotplot'] = array(
     '#type' => 'container',
     '#prefix' => 
-  	  //'<div>',
-  	  // comment out start
   	  '<div id="show_dot_plot" class="TripalMap">
-      <label class="dotplot">Dotplot  <a href= ' . $dotplot_url . '
-  	  target="_blank" title="Dotplot"><img id="dotplot_img" src="' . $dotplot_icon . 
-    // height="28px" width="28px" 
+      <label class="dotplot">Dot Plot  <a href= ' . $dotplot_url . '
+  	  target="_blank" title="Dot Plot"><img id="dotplot_img" src="' . $dotplot_icon . 
   	 '" align="top"></a></label>',
-  	  // comment out end	
     '#suffix' => '</div>',
     '#collapsible' => FALSE,
   );
@@ -248,8 +246,9 @@ function tripal_map_form_add_organism_comparison_bar(&$form, &$form_state, $sele
   $form['main_comparison'] = array(
     '#type' => 'container',
     '#prefix' => '<div id="show_main_comparison" class="TripalMap">
-  	  <label class="reference">Select Comparison Map: </label>',//<a id="correspondence_matrix_link" href= '.$correspondence_matrix_url.' target="_blank"
-  	  //title="Correspondence Matrix"> (View Correspondences Matrix)</a></label>',
+  	  <label class="reference">Select Comparison Map: </label>'
+      .'<a id="correspondence_matrix_link" href= '.$correspondence_matrix_url.' target="_blank"
+  	  title="Correspondence Matrix">(View Correspondence Matrix)</a></label>',
   	'#suffix' => '</div>',
     '#collapsible' => FALSE,
   );
@@ -271,7 +270,7 @@ function tripal_map_form_add_organism_comparison_bar(&$form, &$form_state, $sele
   $form['main_comparison']['mc_frame']['comparison']['show_comparison'] = array(
     '#type' => 'checkbox',
     '#title' => t('Show comparison map'),
-    '#default_value' => FALSE,
+    '#default_value' => tripal_map_get_elem($fs_storage, 'show_comp'), 
     '#ajax' => array(
       'wrapper' => 'show-map-chr-form', 
       'callback' => 'tripal_map_show_map_chr_form_ajax_callback',

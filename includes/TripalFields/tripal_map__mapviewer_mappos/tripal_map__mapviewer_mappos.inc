@@ -7,14 +7,14 @@
  */
 
 
-class tripal_map__mapviewer_marker_mappositions extends ChadoField {
+class tripal_map__mapviewer_mappos extends ChadoField {
 
   // Editable static constants - used by the static functions to provide information to Drupal about
   //  the field and it's default widget and formatter.
   public static $default_label = 'MapViewer Marker MapPositions';
   public static $default_description = 'Displays link for genetic marker map position on the MapViewer map';
-  public static $default_widget = 'tripal_map__mapviewer_marker_mappositions_widget';
-  public static $default_formatter = 'tripal_map__mapviewer_marker_mappositions_formatter';
+  public static $default_widget = 'tripal_map__mapviewer_mappos_widget';
+  public static $default_formatter = 'tripal_map__mapviewer_mappos_formatter';
   public static $module = 'tripal_map';  // module that manages the field.
   
   // Global settings accessed within the globalSettingsForm, updated for all fields when the globalSettingsForm is submitted.
@@ -25,9 +25,9 @@ class tripal_map__mapviewer_marker_mappositions extends ChadoField {
 
   // Instance specific settings accessible within the instanceSettingsForm.
   public static $default_instance_settings = array(
-    'term_vocabulary' => 'tripal_map',              // The short name for the vocabulary (e.g. schema, SO, GO, PATO, etc.).
-    'term_name' => 'mapviewer_marker_mappositions', // The unique ID or accession of the term.
-    'term_accession' => 'mapviewer_marker_mappositions',
+    'term_vocabulary' => 'tripal_map', // The short name for the vocabulary (e.g. schema, SO, GO, PATO, etc.).
+    'term_name' => 'mapviewer_mappos', // The unique ID or accession of the term.
+    'term_accession' => 'mapviewer_mappos',
     'term_fixed' => FALSE,          // allow site admin to change the term type
     'auto_attach' => FALSE,         // disable for fields that load slowly. Load asynchronously, not attaching to display or web services
     'chado_table' => 'feature',     // Instance maps to this Chado table.

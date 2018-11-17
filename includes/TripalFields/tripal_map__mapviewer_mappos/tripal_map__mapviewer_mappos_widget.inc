@@ -8,13 +8,13 @@
  */
 
 
-class tripal_map__mapviewer_marker_mappositions_widget extends ChadoFieldWidget {
+class tripal_map__mapviewer_mappos_widget extends ChadoFieldWidget {
 
   // The default label for this field.
-  public static $default_label = 'mapviewer_marker_mappositions';
+  public static $default_label = 'mapviewer_mappos';
 
   // The list of field types for which this formatter is appropriate.
-  public static $field_types = array('tripal_map__mapviewer_marker_mappositions');
+  public static $field_types = array('tripal_map__mappos');
 
   
   /**

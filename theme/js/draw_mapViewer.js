@@ -1,11 +1,7 @@
 
 // Classes:
-// ChrFrame (instantiated as Reference and Comparison chromosomes)
+// ChrFrame instantiated for Reference and Comparison chromosomes
 //   contains MapLabel, and instances of ChrView and ZoomedView classes
-//
-// ChrView
-//
-// ZoomedView
 //
 //
 var mapViewer = mapViewer || {};
@@ -27,7 +23,7 @@ mapViewer = {
 			this.containerName = "chrFrame_"+orientation;
 			this.orientation = orientation;
 			this.chrRect = 	{height: 400, width: 25};
-			this.linkageGroup = markerData.getLinkageGroup(linkageGroupName, mapName);
+			this.linkageGroup = markerData.getLinkageGroup(linkageGroupName, mapName, orientation);
 			this.markerData = markerData;
 			this.markerEvents = new mapViewer.MarkerEvents(this.linkageGroup, markerData, show, this.chrRect);
 			
@@ -269,7 +265,7 @@ mapViewer = {
 			else { 
 				// display filter is "displayOnQTL", reset the nodes for now
 				if (type == mapViewer.RectangleEnum.CHR) {
-					retNodes = _nodesChrQTL;//.filter(function(d) {return (d.displayOnQTL);});
+					retNodes = _nodesChrQTL;
 				}
 				else { // zoom
 					if (all) {
@@ -281,7 +277,7 @@ mapViewer = {
 				}
 			}
 			
-			if (displayFilter == "correspondences"){
+			if (displayFilter == "correspondences") {
 				retNodes = _nodes.filter(function(d) {return (d.correspondences.draw)});
 			}
 			return retNodes;  			
@@ -293,15 +289,14 @@ mapViewer = {
 			svg.classed("active", true);
 			
 			// change the cursor to a hand when hovering over
-            if(node.marker.url !== null) {
-
-                svg.selectAll("line, text").style("cursor", "pointer");
-            } else {
-                svg.selectAll("line, text").style("cursor", "text");
-            }
-
-
-            // text aggregate popup
+			if (node.marker.url) {
+				svg.selectAll("line, text").style("cursor", "pointer");
+			} 
+			else {
+				svg.selectAll("line, text").style("cursor", "pointer");
+			}
+			
+			// text aggregate popup
 			var pos = '';
 			if ((node.marker.kind == "QTL") && (node.marker.startPos != node.marker.stopPos)) {
 				pos = Drupal.t('Position: @startPos - @stopPos', {
@@ -333,17 +328,21 @@ mapViewer = {
 	            .style("cursor", "default");
 		}
 
-        onclick(node) {
-            if (node.marker.url) {
-                window.open(Drupal.settings.baseUrl + "/tripalmap_feature/" + node.marker.feature_id);
-            }
-            return false;
-        }
+		onclick(node) {
+			if (node.marker.url) {
+				window.open(Drupal.settings.baseUrl+node.marker.url);		
+			}
+			return false; 
+		}
 
-
-        startForce(force, view) {
+		startForce(force, view) {
+			
+			var _this = this;
 			force.on("tick", function() {
 				view.onForceTick(view.svg);
+				_this.linkageGroup.setNodeCorrespondences(_this.markerData);
+				_this.correspondences.setTranslate(0, 0);
+				_this.correspondences.update(_this.svg);
 			});
 			
 			force.start();
@@ -359,16 +358,23 @@ mapViewer = {
 		}
 
 		createForce(chrRect, linkageGroup) {
-			var force = d3.layout.force()
-        	.nodes(linkageGroup.nodes)
-        	.links(linkageGroup.links)
-			.gravity(0) // in the range [0,1], centers the nodes
-			.friction(0.15) // range [0,1], scales the particle velocity (decay), 1: frictionless, 0: freezes all particles in place 
-			.linkStrength(0) // rigidity of links in the range [0,1], seems to center the nodes
-			.linkDistance(30)
-			.charge(-60) // negative value gives node repulsion
-			.size([1000, chrRect.height + 100]);
-			
+			var force = "";
+			if (tripalMap.d3VersionFour()) {
+				force = d3.forceSimulation(linkageGroup.nodes);
+				force.force("link", d3.forceLink(linkageGroup.links));
+				force.force.initialize(linkageGroup.nodes);
+			}
+			else {
+				force = d3.layout.force()
+					.nodes(linkageGroup.nodes)
+					.links(linkageGroup.links)
+					.gravity(0) // in the range [0,1], centers the nodes
+					.friction(0.15) // range [0,1], scales the particle velocity (decay), 1: frictionless, 0: freezes all particles in place 
+					.linkStrength(0) // rigidity of links in the range [0,1], seems to center the nodes
+					.linkDistance(30)
+					.charge(-60) // negative value gives node repulsion
+					.size([1000, chrRect.height + 100]);
+			}		
 			return force;
 		}
 		getchrScaleRange() {
@@ -467,12 +473,6 @@ mapViewer = {
 			this.polygon.update(svgParent);
 
 			return svgParent;
-		}
-		
-		onForceTick(svgParent) {
-			this.chr.onForceTick(svgParent);
-			this.qtl.onForceTick(svgParent);
-			
 		}
 		
 		drawChrView(svgParent) {
@@ -583,12 +583,13 @@ mapViewer = {
 		}
 
 		update(svgParent) {
+			if (svgParent) {
 			if (this.showRuler && !this.showMarkerPos) {
 				this.ruler.update(svgParent);
 			}
 			this.qtl.update(svgParent);
 			this.zoom.update(svgParent);
-			
+			}
 			return svgParent;
 		}
 	
@@ -733,9 +734,6 @@ mapViewer = {
 			return svgParent;
 		}
 		
-		onForceTick(svgParent){
-			this.markersOnRect.onForceTick(svgParent);
-		}
 
 		drawChr(svgParent) {
 
@@ -818,7 +816,7 @@ mapViewer = {
 			return svgParent;
 		}
 
-		onForceTick(svgParent){
+		onForceTick(svgParent) {
 			this.markersOnRect.onForceTick(svgParent);
 		}
 	
@@ -1000,7 +998,7 @@ mapViewer = {
 	    		.data(_nodes)
 				.enter().append("text")
 	    		.attr("class", this.marker_names_className)
-	    		.attr("id", function(d) { return _this.marker_names_className+"_"+ encodeURIComponent(d.name); }) 
+	    		.attr("id", function(d) { return _this.marker_names_className+"_"+ tripalMap.encodeHtmlIdAttrib(d.fullName); }) 
 	    		.attr("x", labelEndPosX )
 	    		.attr("y", function(d) { return d.y + labelOffsetEndPosY; })
 	    		.text(function(d) { return d.name; })
@@ -1239,7 +1237,7 @@ mapViewer = {
 	    		.data(_nodes)
 	    		.enter().append("text")
 	    		.attr("class", this.marker_names_className)
-	    		.attr("id", function(d) { return _this.marker_names_className+"_"+ encodeURIComponent(d.name); }) 
+	    		.attr("id", function(d) { return _this.marker_names_className+"_"+ tripalMap.encodeHtmlIdAttrib(d.fullName); }) 
 	    		.attr("x", function(d) { return (((d.x -1) * laneOffset) + labelEndPosX + (orientChr ? 0 : d.qtlMaxChrs*chrLen)) * mirrorPosX; })
 	    		.attr("y", function(d) { return d.y + labelOffsetEndPosY; })
 	    		.text(function(d) { return d.name; })
@@ -1411,7 +1409,7 @@ mapViewer = {
 		}
 		
     	draw(svgParent) {
-			if (!(this.cBrushObj)){
+			if (!(this.cBrushObj)) {
 				return svgParent;
 			}
     		
@@ -1436,7 +1434,7 @@ mapViewer = {
 		}
     	
     	updateBrushDomain() {
-			if (!(this.cBrushObj)){
+			if (!(this.cBrushObj)) {
 				return;
 			}
 			if (this.cBrushObj.empty()) {
@@ -1485,9 +1483,7 @@ mapViewer = {
 			this.drawCorrespondences(svgParent);
 
 	    	var _nodes = this.markerEvents.getFilteredNodes("correspondences", this.type); 
-	    	
-	    	
-			// Draw correspondence lines
+	    	// Draw correspondence lines
 	    	var _this = this;
     		var correspondence_lines = this.svg.append("g");
     		correspondence_lines.attr("class", this.correspondence_lines_className)
@@ -1496,7 +1492,7 @@ mapViewer = {
 	    		.data(_nodes)
 	    		.enter().append("line")
 	    		.attr("class", this.correspondence_lines_className)
-	    		.attr("id", function(d) { return _this.correspondence_lines_className+"_"+ encodeURIComponent(d.name); })
+	    		.attr("id", function(d) { return _this.correspondence_lines_className+"_"+ tripalMap.encodeHtmlIdAttrib(d.fullName); })
 	    		.attr("x1", function(d) {  
 	    			return (_this.orientation == mapViewer.OrientationEnum.LEFT) ? (d.correspondences.x1 + d.correspondences.x1_width + 1) : (d.correspondences.x1 - 1); }) 
 	    		.attr("y1", function(d) { return d.correspondences.y1; })
@@ -1544,11 +1540,15 @@ mapViewer = {
 			this.svg = 0;
 			this.mapLabel = mapLabel;
 			this.mapId = mapId;
-			this.linkageGroupName = linkageGroupName;
+			this.linkageGroupName = tripalMap.lGNameReduction(linkageGroupName, mapLabel);
 		}
 		
 		draw(svgParent) {
-			
+
+			if (this.linkageGroupName == "Null") {
+				 drupal_set_message(t('linkageGroup name is Null'), 'warning');				
+			}
+
 	        var map_id = 100; 
 			var mapUrl = Drupal.settings.baseUrl+"/tripalmap_featuremap/" + this.mapId;
 
@@ -1673,8 +1673,10 @@ mapViewer = {
 			return svgParent;
 		}
 		update(svgParent) {
+			if(svgParent) {
 			svgParent.selectAll("#chr_y_ruler").remove();
 			this.draw(svgParent);
+			}
 			return svgParent;
 		}
 

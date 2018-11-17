@@ -45,7 +45,6 @@ function tripal_map_node_view($node, $view_mode, $langcode) {
         $exclude_maps = explode(";", variable_get('tripal_map_map_overview_exclude_maps'));
   		$exclude_maps = array_map('trim', $exclude_maps);
   		$map_name = $node->featuremap->name;
-  		//$b = in_array($map_name, $exclude_maps);
   
   		if (!in_array($map_name, $exclude_maps)) {
           $node->content['tripal_map_mapviewer'] = array(

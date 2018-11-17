@@ -12,7 +12,7 @@ function tripal_map_preprocess_mainlab_featuremap_base(&$variables) {
       INNER JOIN {feature} F ON F.feature_id = FP.feature_id
       WHERE F.type_id = (SELECT cvterm_id
         FROM {cvterm}
-        WHERE name = 'marker_locus' AND cv_id = (SELECT cv_id FROM {cv} WHERE name = 'sequence'))
+        WHERE name = 'marker_locus' AND cv_id = (SELECT cv_id FROM {cv} WHERE name = 'MAIN'))
         AND featuremap_id = :featuremap_id", array(':featuremap_id' => $featuremap->featuremap_id))->fetchField();
   $num_lg = chado_query(
     "SELECT count (distinct F.uniquename)
@@ -96,7 +96,7 @@ function tripal_map_preprocess_mainlab_feature_genetic_marker_map_positions(&$va
       (SELECT cvterm_id
         FROM {cvterm}
         WHERE name = 'marker_locus'
-        AND cv_id = (SELECT cv_id FROM {cv} WHERE name = 'sequence')
+        AND cv_id = (SELECT cv_id FROM {cv} WHERE name = 'MAIN')
       )
     AND FPP.type_id =
       (SELECT cvterm_id
@@ -266,13 +266,15 @@ function tripal_map_mainlab_tripal_dbresult_to_array($dbresult) {
 // Link to Tripal v2 node. If node is not available, link to Tripal v3 entity
 function tripal_map_mainlab_tripal_link_record ($base_table, $record_id) {
 	$link = NULL;
+	
 	// tripal v2 link (node)
-  if (function_exists('chado_get_nid_from_id')) {
-    $nid = chado_get_nid_from_id($base_table, $record_id);
-    if ($nid) {
-      $link = "/node/$nid";
-    }
-  }
+	if (function_exists('chado_get_nid_from_id')) {
+	    $nid = chado_get_nid_from_id($base_table, $record_id);
+	    if ($nid) {
+	        $link = "/node/$nid";
+	    }
+	}
+	
 	// tripal v3 link (entity)
 	if (function_exists('tripal_get_chado_entity_id')) {
 		$entity_id = tripal_get_chado_entity_id ($base_table, $record_id);

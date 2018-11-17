@@ -1,7 +1,7 @@
 
 /* 
- * File: tripal_correspondence_matrix.js
- * Obtain settings from MapViewer PHP form, call linkageGroup draw to display selected chromosomes.
+ * File: tripal_dotplot.js
+ * Obtain settings from MapViewer PHP form, call Dot Plot draw to display selected chromosomes.
  */
 
 (function($) {
@@ -24,7 +24,7 @@
     	$(container).before('<div></div><div id ="select_fieldset_dotplot_svg" width="100%"></div>');
 
     	var corres = tripalMap.findCorrespondences(featuresCombined);
-    	dotplot.drawDotplot(primMap, primLinkageGroup, secMap, secLinkageGroup, corres);
+    	dotplot.drawDotplotPlotly(primMap, primLinkageGroup, secMap, secLinkageGroup, corres);
 
     });
     }

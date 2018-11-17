@@ -8,13 +8,13 @@
  */
 
 
-class tripal_map__mapviewer_marker_mappositions_formatter extends ChadoFieldFormatter {
-
+class tripal_map__mapviewer_mappos_formatter extends ChadoFieldFormatter {
+        
   // The default label for this field.
   public static $default_label = 'MapViewer Marker Map Positions';
 
   // The list of field types for which this formatter is appropriate.
-  public static $field_types = array('tripal_map__mapviewer_marker_mappositions');
+  public static $field_types = array('tripal_map__mapviewer_mappos');
 
   // The list of default settings for this formatter.
   public static $default_settings = array(
@@ -128,7 +128,7 @@ class tripal_map__mapviewer_marker_mappositions_formatter extends ChadoFieldForm
       foreach($markers as $marker) {
         // Get the field values
         $map_name = $marker['map_name'];
-        $linkage_group = $marker['linkage_group'];
+        $linkage_group = str_replace("/", "_forwardslash_", $marker['linkage_group']);
         $position = $marker['marker_pos'];
         $locus = $marker['feature_name'];
         $mapviewer = "<a href= '/mapviewer/".$marker['map_id']."/".$linkage_group."/".$locus."' target='_blank'>MapViewer</a>";

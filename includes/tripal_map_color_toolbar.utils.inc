@@ -2,7 +2,7 @@
 
 /**
  * @file
- *	 Create form that displays genetic maps
+ *	 File to create color toolbar for form that displays genetic maps
  *	 Draw the MapViewer page displaying a chromosome with zoomed view and toolbars below.
  *	 Toolbars select organism, map and linkage group and configure color and marker visibility.
  *

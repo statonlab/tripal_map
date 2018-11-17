@@ -16,7 +16,6 @@ scripts[] 		   = theme/js/tripal_dotplot.js
 scripts[] 		   = theme/js/tripal_genetic_map_overview.js
 scripts[] 		   = theme/js/tripal_mapViewer.js
 scripts[] 		   = theme/js/tripal_map_utils.js
-scripts[] 		   = theme/js/d3.v4.min.js
 
 
 ; These modules must be enabled before this module can be enabled

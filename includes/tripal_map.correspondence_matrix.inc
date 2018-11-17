@@ -58,21 +58,26 @@ function tripal_map_correspondence_matrix_form($form, &$form_state, $featuremap_
   // add the JS files
   tripal_map_draw_correspondence_matrix($form, $form_state);
   
+  /* Enable to show selector menus */
   // Initialize toolbars and form state storage
   // The secondary map will have a filtered list based on the primary map
-  tripal_map_form_cm_organism_bar_init($form, $form_state, $select_options, $featuremap_prim_id, $featuremap_sec_id);
-  tripal_map_form_correspondence_matrix_bar($form, $form_state, $select_options, $featuremap_prim_id, $featuremap_sec_id);
-
+  if (tripal_map_show_correspondence_matrix_menu()) {
+    tripal_map_form_cm_organism_bar_init($form, $form_state, $select_options, $featuremap_prim_id, $featuremap_sec_id);
+    tripal_map_form_correspondence_matrix_bar($form, $form_state, $select_options, $featuremap_prim_id, $featuremap_sec_id);
+  }
+  
   // add refmap, compmap and corres to JS
   $map_org = $select_options['map_org'];
-  $features_corres_matrix = tripal_map_create_JS_params($featuremap_prim_id, $featuremap_sec_id, $map_org);
+  $features_corres_matrix = tripal_map_create_cm_JS_params($featuremap_prim_id, $featuremap_sec_id, $map_org);
   //$features_corres_matrix = {rows: [type: refmap,  name: $ref_map_name, lgs: [lg1, lg2, ...]}, cols: {type: compmap,  name: $comp_map_name, lgs: [lg1, lg2, ...]}, corresp: [[1,2,...],[2,3,...],...]}
   $js_setting_corres_matrix = 'mapCorrespondenceMatrixJS';
   tripal_map_update_drupal_add_js_params($js_setting_corres_matrix, NULL, NULL, $features_corres_matrix);
   
   // display the correspondence matrix table
-  //$form['#attached']['js'][] = drupal_get_path('module', 'tripal_map') . '/theme/js/d3.v4.min.js'; 
-  $form['#attached']['js'][] = drupal_get_path('module', 'tripal_map') . '/theme/js/d3v3.min.js';
+  $form = tripal_map_attach_d3_lib($form);
+  $form['#attached']['js'][] = drupal_get_path('module', 'tripal_map') . '/theme/js/libraries/FileSaver.js';
+  $form['#attached']['js'][] = drupal_get_path('module', 'tripal_map') . '/theme/js/libraries/canvas-to-blob.min.js';
+  
   $form['select'] = array(
     '#type' => 'container',
     '#attributes' => array(
@@ -85,7 +90,7 @@ function tripal_map_correspondence_matrix_form($form, &$form_state, $featuremap_
 }
 
 
-function tripal_map_create_JS_params($featuremap_prim_id, $featuremap_sec_id, $map_org) {
+function tripal_map_create_cm_JS_params($featuremap_prim_id, $featuremap_sec_id, $map_org) {
 
 	// correspondences
   $corres = tripal_map_create_correspondences();
@@ -116,6 +121,7 @@ function tripal_map_create_JS_params($featuremap_prim_id, $featuremap_sec_id, $m
   $features_cm_rows = &$features_corres_matrix['rows'];
   $features_cm_rows['type'] = 'refmap';
   $features_cm_rows['name'] = tripal_map_get_map_name($featuremap_prim_id);
+  $features_cm_rows['feature_id'] = $featuremap_prim_id;
   $features_cm_rows['lgs'] = array_keys($ref_map_lgs);
   
   // comparison map
@@ -123,6 +129,7 @@ function tripal_map_create_JS_params($featuremap_prim_id, $featuremap_sec_id, $m
   $features_cm_cols = &$features_corres_matrix['cols'];
   $features_cm_cols['type'] = 'compmap';
   $features_cm_cols['name'] = tripal_map_get_map_name($featuremap_sec_id);
+  $features_cm_cols['feature_id'] = $featuremap_sec_id;
   $features_cm_cols['lgs'] = array_keys($comp_map_lgs);
   
   $features_corres_matrix['correspondences'] = array();
@@ -183,7 +190,6 @@ function tripal_map_form_cm_organism_bar_init( &$form, &$form_state, $select_opt
     if (array_key_exists('featuremap_cm_sec_id', $form_state['storage'])) {
       $featuremap_cm_sec_id = $form_state['storage']['featuremap_cm_sec_id'];
     }
-    
   }
 
   tripal_map_init_cm_organism_selectors_from_storage($form_state, $select_options, $featuremap_cm_prim_id, $featuremap_cm_sec_id);
@@ -205,6 +211,7 @@ function tripal_map_form_cm_organism_bar_init( &$form, &$form_state, $select_opt
     "mapskey" => "cm_prim_maps_key", "chr" => "", "chrkey" => "");
   $form_trigger_selectors = array(  "select_organism" => "select_organism_primary_cm", 
     "select_map" => "select_map_primary_cm", "select_chromosome" =>"");
+  
   tripal_map_trigger_update_storage_from_selectors($selector_toolbar, $fs_selector_names,
     $form_trigger_selectors, $select_options, $form_state);
 
@@ -352,7 +359,7 @@ function tripal_map_form_correspondence_matrix_bar(&$form, &$form_state, $select
   $form['correspondence_matrix']['organism_primary'] = array(
     '#type' => 'container',
   	'#prefix' => '<div id="select_organism_primary_cm" class="TripalMap">',
-  	'#suffix' => '</a></div>',
+  	'#suffix' => '</div>',
     '#collapsible' => FALSE,
   );
    
@@ -412,8 +419,6 @@ function tripal_map_form_correspondence_matrix_bar(&$form, &$form_state, $select
      '#default_value' => $cm_sec_org_key,
   );
   
-  
-  
   $form['correspondence_matrix']['organism_secondary']['select_map_secondary_cm'] = array(
     '#type' => 'select',
     '#title' => t('Map'),
@@ -431,7 +436,7 @@ function tripal_map_form_correspondence_matrix_bar(&$form, &$form_state, $select
      '#needs_validation' => FALSE,
   );
   
-  $form['correspondence_matrix']['button_cm-submit'] = array(
+  $form['correspondence_matrix']['organism_secondary']['button_cm-submit'] = array(
     '#type' => 'submit', 
     '#value' => t('Submit'),
     '#name' => ('Submit_CM'),

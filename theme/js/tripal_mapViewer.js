@@ -6,7 +6,7 @@
 
 (function($) {
 	Drupal.behaviors.tripal_mapViewerBehavior = {
-	attach: function (context, settings){
+	attach: function (context, settings) {
     	
     	$('#select_fieldset_mapViewer').once('select_fieldset_mapViewer', function() {
     	
@@ -39,18 +39,18 @@
 
      	// be very careful when creating a unique list of markers as some have the same name, but different position. 
     	var uniqueMarkers = [];
-    	for(var key in geneticFeatures){
+    	for(var key in geneticFeatures) {
     		uniqueMarkers.push(geneticFeatures[key]);
     	}
     	var strUniqueMarkers = JSON.stringify(uniqueMarkers);
     	var uniqueMarkersComparison = [];
-    	for(var key in geneticFeaturesComparison){
+    	for(var key in geneticFeaturesComparison) {
     		uniqueMarkersComparison.push(geneticFeaturesComparison[key]);
     	}
     	var strUniqueMarkersComparison = JSON.stringify(uniqueMarkersComparison);
     	
        	var strMarkerTypeDisplayStates = "";
-		if (Object.keys(markerTypeDisplayStates).length > 0){
+		if (Object.keys(markerTypeDisplayStates).length > 0) {
     		strMarkerTypeDisplayStates = JSON.stringify(markerTypeDisplayStates);
     	}
 		
@@ -59,9 +59,15 @@
 		var linkageGroupComparisonId = "lgComp";
 		var mapComparisonId = uniqueMarkersComparison[0].featuremap_id;
 		var markerData = new configMapViewer.MarkerData(strMarkerTypeDisplayStates, markerTypeColorMap);
-	    markerData.addLinkageGroup(uniqueMarkers, linkageGroupName, mapName, linkageGroupId, mapId);
+		if (!(linkageGroupName)){
+			linkageGroupName = "Null";
+		}
+	    markerData.addLinkageGroup(uniqueMarkers, linkageGroupName, mapName, linkageGroupId, mapId, mapViewer.OrientationEnum.LEFT);
 		if (showComparison) {
-	    markerData.addLinkageGroup(uniqueMarkersComparison, linkageGroupComparisonName, mapComparisonName, linkageGroupComparisonId, mapComparisonId);
+			if (!(linkageGroupComparisonName)){
+				linkageGroupComparisonName = "Null";
+			}
+	    markerData.addLinkageGroup(uniqueMarkersComparison, linkageGroupComparisonName, mapComparisonName, linkageGroupComparisonId, mapComparisonId, mapViewer.OrientationEnum.RIGHT);
 		}
 		markerData.findCorrespondences();
 	    var show = {Ruler: showRuler, MarkerPos: showMarkerPos, Comparison: showComparison};
@@ -69,7 +75,7 @@
 	    // get the svg width
 		var svgFieldset = "#select_fieldset_mapViewer_svg";
 	    d3.select(svgFieldset).selectAll("svg").remove(); 
-	    var svgHeight = 600;
+	    var svgHeight = 600 + 25;
 	    var svgMaxWidth = 1100;
 	    var svg = d3.select(svgFieldset)
 	    	.append("svg").attr("class", "TripalMap").attr("width", svgMaxWidth).attr("height", svgHeight);
@@ -84,7 +90,7 @@
 		}
 
 		// if a scrollbar is required, nest the svg in the div for scrolling
-		var svgWidth = chrFrameRefWidth + chrFrameCompWidth + 200;
+		var svgWidth = chrFrameRefWidth + chrFrameCompWidth + 200 + 35;
 		var mvScroll = "mv_scroll";
 	    d3.select(svgFieldset).selectAll("svg").remove(); 
 		if (svgWidth > svgMaxWidth) {
@@ -98,9 +104,22 @@
 	            .append("svg").attr("class", "TripalMap").attr("width", svgMaxWidth).attr("height", svgHeight);
 	    }
 	    
+		var pngFileName = 'MapViewer_' + mapName + '_' + linkageGroupName + '_vs_' + mapComparisonName + '_' + linkageGroupComparisonName + '.png'; 
+		var stp = svg.append("svg:image");
+		stp.attr("xlink:href", Drupal.settings.baseUrl+"/sites/all/modules/tripal_map/theme/images/save_as_png.png")
+		.attr('width', 35)
+		.attr('height', 25)
+		.attr("transform", "translate(" + 0 + "," + 0 +")")
+		.attr("id", "save_to_png")
+		.on("click", function(d) { tripalMap.onSaveToPngClick(svg, pngFileName);})
+		.on("mouseover", function(d) { tripalMap.onSaveToPngMouseOver(svg);})
+		.on("mouseout", function(d) { tripalMap.onSaveToPngMouseOut(svg);});
+
+		var transY = stp.node().getBoundingClientRect().height;
+
 	    // Reference linkage group
 	    var translateX = 0;
-	    var translateY = 35;
+	    var translateY = 35 + transY;
 		chrFrameReference.setTranslate(translateX, translateY);
 		svg = chrFrameReference.draw(svg);
 		translateX = chrFrameRefWidth + 15; // take the statically calculated width based on full data set instead of zoomed section //svg.node().getBBox().width;

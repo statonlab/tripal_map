@@ -2,7 +2,7 @@
 
 /*
  * File: mainlab_feature_genetic_marker_map_positions.tpl.php
- * Copied from MainLab Tripal extension module for Tripal that includes custom tables for Chado used
+ * From MainLab Tripal extension module that includes custom tables for Chado used
  * by the Main Bioinformatics Laboratory. Version core = 7.x.
  * Modified for tripal_map to display link to MapViewer page from the feature Map Positions pane.
  */
@@ -17,8 +17,13 @@ $counter_pos = count($map_positions);
        $hasChr = true;
      }
    }
-  $header = $hasChr ? array ('#', 'Map Name', 'Linkage Group', 'Bin', 'Chromosome', 'Position', 'Locus', 'MapViewer', 'CMap') : 
-  array ('#', 'Map Name', 'Linkage Group', 'Bin', 'Position', 'Locus', 'MapViewer', 'CMap');
+  $header = $hasChr ? array ('#', 'Map Name', 'Linkage Group', 'Bin', 'Chromosome', 'Position', 'Locus', 'MapViewer') : 
+  array ('#', 'Map Name', 'Linkage Group', 'Bin', 'Position', 'Locus', 'MapViewer');
+  $cmap_enabled = variable_get('mainlab_tripal_cmap_links', 1);
+  if ($cmap_enabled) {
+    $header[] = 'CMap';
+  }
+  
   $rows = array ();
   $counter = 1; 
 
@@ -29,18 +34,27 @@ $counter_pos = count($map_positions);
     if ($hasChr) {
       $chr = $pos->chr ?$pos->chr : "N/A";
     }
-    $position = number_format($pos->locus_start, 2);
+    
+    $position = round($pos->locus_start, 2);
     $locus = $pos->locus_name;
     $highlight = $node->feature->uniquename;
-    $linkage_group = $pos->linkage_group; 
+    
+    $linkage_group = $pos->linkage_group ? str_replace("/", "_forwardslash_", $pos->linkage_group) : "";
     $marker_name = $locus ? $locus : $highlight;
     $mapviewer = (!$pos->id || !$pos->linkage_group)? "N/A" : "<a href=\"/mapviewer/$pos->id".
     "/$linkage_group/$pos->locus_name\" target=\"_blank\">View</a>";
-    $cmap = (!$pos->urlprefix || !$pos->accession)? "N/A" : "<a href=\"$pos->urlprefix$pos->accession" . 
-    "&ref_map_acc=-1&highlight=" . $highlight . "\">View</a>";
     
-    $rows[] = $hasChr ? array ($counter, $map, $lg, $bin, $chr, $position, $locus, $mapviewer, $cmap) : 
-    array ($counter, $map, $lg, $bin, $position, $locus, $mapviewer, $cmap);
+    if ($cmap_enabled) {
+      $cmap = (!$pos->urlprefix || !$pos->accession)? "N/A" : "<a href=\"$pos->urlprefix$pos->accession" . 
+      "&ref_map_acc=-1&highlight=" . $highlight . "\">View</a>";
+      $rows[] = $hasChr ? array ($counter, $map, $lg, $bin, $chr, $position, $locus, $mapviewer, $cmap) : 
+      array ($counter, $map, $lg, $bin, $position, $locus, $mapviewer, $cmap);
+    }
+    else {
+        $rows[] = $hasChr ? array ($counter, $map, $lg, $bin, $chr, $position, $locus, $mapviewer) : 
+        array ($counter, $map, $lg, $bin, $position, $locus, $mapviewer);
+    }
+    
     $counter ++;
   }
   $table = array(
@@ -54,8 +68,6 @@ $counter_pos = count($map_positions);
     'colgroups' => array(),
     'empty' => '',
   );
-  //$tripal_map_genetic_map_overview_form = $variables['tripal_map_genetic_map_overview_form'];
-  //print drupal_render($tripal_map_genetic_map_overview_form);
     
   print theme_table($table);
 } ?>

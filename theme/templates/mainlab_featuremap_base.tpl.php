@@ -2,7 +2,7 @@
 
 /*
  * File: mainlab_featuremap_base.tpl.php
- * Copied from MainLab Tripal extension module for Tripal that includes custom tables 
+ * From MainLab Tripal extension module for Tripal that includes custom tables 
  * for Chado used by the Main Bioinformatics Laboratory. Version core = 7.x. 
  * Modified for TripalMap to display the MapViewer chromosome 
  * glyphs at the top of the featuremap Map Overview pane.
@@ -85,7 +85,8 @@ $contacts = $featuremap->featuremap_contact;
 
 $headers = array();
 $rows = array();
-$display_name = $featuremap->cmap_url ? $featuremap->name . " [<a href=\"" . $featuremap->cmap_url . "&ref_map_accs=-1\" target=\"_blank\">View in CMap</a>]" : $featuremap->name;
+$cmap_enabled = variable_get('mainlab_tripal_cmap_links', 1);
+$display_name = $cmap_enabled && $featuremap->cmap_url ? $featuremap->name . " [<a href=\"" . $featuremap->cmap_url . "&ref_map_accs=-1\" target=\"_blank\">View in CMap</a>]" : $featuremap->name;
 $rows [] = array(array('data' => 'Name', 'header' => TRUE, 'width' => '20%'), $display_name);
 $rows [] = array(array('data' => 'Species', 'header' => TRUE, 'width' => '20%'), $display_organism);
 foreach ($featuremapprop AS $prop) {
@@ -121,21 +122,21 @@ if ($pop_size) {
 
 // Print # of Loci
 $num_loci = $featuremap->num_loci;
-if ($num_loci){
+if ($num_loci) {
   $rows [] = array(array('data' => 'Number of loci', 'header' => TRUE, 'width' => '20%'), $num_loci);
 }
 
 // Print # of QTL
 if (property_exists($featuremap, 'num_qtl')) { 
   $num_qtl = $featuremap->num_qtl;
-  if ($num_qtl){
+  if ($num_qtl) {
     $rows [] = array(array('data' => 'Number of QTL', 'header' => TRUE, 'width' => '20%'), $num_qtl);
   }
 }
 
 // Print # of Linkage group
 $num_lg = $featuremap->num_lg;
-if ($num_lg){
+if ($num_lg) {
   $rows [] = array(array('data' => 'Number of linkage groups', 'header' => TRUE, 'width' => '20%'), $num_lg);
 }
 

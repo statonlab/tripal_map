@@ -737,7 +737,7 @@ function tripal_map_update_comparison_toolbar($form, $form_state, $maps_key_t, $
  *   The current state of the form. The values and storage that were submitted
  *
  * @return
- *   A form array for the MapViewer form.
+ *   A form array for the Landing Page form.
  *
  * @ingroup tripal_map_includes
  */
@@ -800,7 +800,7 @@ function tripal_map_show_map_chr_landingpage_form_ajax_callback($form, &$form_st
  *   The current state of the form. The values and storage that were submitted
  *
  * @return
- *   A form array for the MapViewer form.
+ *   A form array for the Correspondences Matrix form.
  *
  * @ingroup tripal_map_includes
  */
@@ -828,7 +828,6 @@ function tripal_map_show_org_map_form_ajax_callback($form, &$form_state) {
     // update reference form lists
     $org_key_t = $form_state['values']['select_organism_primary_cm'];
     $maps_key_t = key($maps[$org_key_t]);
-	
     
     // set the map for cm
     $form['correspondence_matrix']['organism_primary']['select_map_primary_cm']['#options'] = $maps[$org_key_t];
@@ -923,3 +922,16 @@ function tripal_map_form_add_show_hide_bar(&$form, &$form_state) {
   
 }
 
+
+function tripal_map_attach_d3_lib(&$form) {
+  
+  //$form['#attached']['js'][] = drupal_get_path('module', 'tripal_map') . '/theme/js/libraries/d3.v4.min.js';
+  $form['#attached']['js'][] = drupal_get_path('module', 'tripal_map') . '/theme/js/libraries/d3v3.min.js';
+  return $form;
+
+}
+
+function tripal_map_show_correspondence_matrix_menu() {
+    return false;
+    //return true;
+}

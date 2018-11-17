@@ -4,7 +4,7 @@
 
 (function($) {
   Drupal.behaviors.tripal_mapOverviewBehavior = {
-    attach: function (context, settings){
+    attach: function (context, settings) {
   
         $('#select_fieldset_genetic_map_overview').once('select_fieldset_genetic_map_overview', function() {
 
@@ -19,22 +19,22 @@
         // using the map name and linkage group, create the panes link in the toc
         tripalMap.orderFeaturemapToc(featuremapId);     	
  
-        // be very careful when creating a unique list of markers as some have the same name, but different position value. 
+        // be very careful when creating a unique list of markers as some have the same name, but different position. 
         var features = {};
-        geneticFeatures.forEach(function(feature){
-            if (!(JSON.stringify(feature) in features)){
+        geneticFeatures.forEach(function(feature) {
+            if (!(JSON.stringify(feature) in features)) {
                 features[JSON.stringify(feature)] = feature;
             }
         });
 
         var uniqueGeneticMarkers = [];
-        for(var key in features){
+        for(var key in features) {
             uniqueGeneticMarkers.push(features[key]);
         } 
 
         var strUniqueGeneticMarkers = JSON.stringify(uniqueGeneticMarkers);
         var strMarkerTypeDisplayStates = "";
-		if (Object.keys(markerTypeDisplayStates).length > 0){
+		if (Object.keys(markerTypeDisplayStates).length > 0) {
             strMarkerTypeDisplayStates = JSON.stringify(markerTypeDisplayStates);
         }
 		

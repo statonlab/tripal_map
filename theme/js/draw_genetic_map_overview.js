@@ -41,13 +41,16 @@ var geneticOverviewMap = geneticOverviewMap || {};
     var data = (JSON.parse(dataMarkers));
 	var linkageGroupsAr = [];
 	data.forEach(function(d) {
-		
+		if (!(d.linkage_group)) {
+			// the linkage group name is null, but data is still associated with it. assign it the string "null" to proceed.
+			d.linkage_group = "Null";
+		}
 		if (!(linkageGroupsAr.indexOf(d.linkage_group) > -1)) {
 			linkageGroupsAr.push(d.linkage_group);
 		}
 		
 	});
-	
+
 	linkageGroupsAr.sort();
 
 	// get linkage group label max height to adjust svg for linkage group label multi-line wrap
@@ -60,7 +63,7 @@ var geneticOverviewMap = geneticOverviewMap || {};
 		var t = d3.select("#select_fieldset_genetic_map_overview").append("svg");
 			t.append("text")
 			.attr("class", "lgtext")
-			.style("font-size", "1em")
+			.style("font-size", "1em").style("line-height", ".9em")
 			.text(Drupal.t( '@linkageGroup', {'@linkageGroup': linkageGroupName}))	  
 			.call(tripalMap.wrap, glyphDistanceSeparation);
 
@@ -82,13 +85,27 @@ var geneticOverviewMap = geneticOverviewMap || {};
 	// requires container.height, container.width and container.maxWidth to be preset
 	var svg = setupSvgContainer(linkageGroupsAr.length, container);
 
-    // add chromosome view to svg, containing map name
+	// add chromosome view to svg, containing map name
     var chrView = svg.append("g")
-		.attr("transform", "translate(" + marginChr.left + "," + marginChr.top + ")")
+		.attr("transform", "translate(" + marginChr.left + "," + (marginChr.top /*+ transY*/) +")")
         .attr("visibility", "unhidden");
 
+    var pngFileName = 'MapOverview_' + dc.mapName + '.png'; 
+	var stp = chrView.append("svg:image");
+	stp.attr("xlink:href", Drupal.settings.baseUrl+"/sites/all/modules/tripal_map/theme/images/save_as_png.png")
+		.attr('width', 32)
+		.attr('height', 23)
+		.attr("transform", "translate(" +  (-marginChr.left) + "," + (chr.offsets.topLabel.y + 6) +")")
+		.attr("id", "save_to_png")
+		.on("click", function(d) { tripalMap.onSaveToPngClick(svg, pngFileName);})
+		.on("mouseover", function(d) { tripalMap.onSaveToPngMouseOver(svg);})
+		.on("mouseout", function(d) { tripalMap.onSaveToPngMouseOut(svg);});
+
+	var transY = stp.node().getBoundingClientRect().height;
+	var transX = stp.node().getBoundingClientRect().width;
+
     chrView.append("text")
-		.attr("id", "text-select").attr("dx", -marginChr.left+10).attr("dy",chr.offsets.topLabel.y)
+		.attr("id", "text-select").attr("dx", -marginChr.left + 7 + transX).attr("dy",(chr.offsets.topLabel.y + transY))
 		.style("font-size", "1em")
 		.text('Viewing '+dc.mapType+' map '+dc.mapName);	  
 
@@ -109,11 +126,11 @@ var geneticOverviewMap = geneticOverviewMap || {};
 			// Cottongen work around
 			linkageGroupName = tripalMap.lGNameReduction(linkageGroup, dc.mapName);
 
-			var dx = (count*glyphDistanceSeparation);
-			var dy = chr.offsets.topLabel.y+50;
+			var dx = (count*glyphDistanceSeparation) + 5;
+			var dy = chr.offsets.topLabel.y+ transY + 40;
 			chrView.append("text")
 				.attr("class", "lgtext").attr( "id", "text-select").attr("dx", dx).attr("dy", dy)
-				.style("font-size", "1em")
+				.style("font-size", "1em").style("line-height", ".9em")
 				.text(linkageGroupName)	  
 				.call(tripalMap.wrap, glyphDistanceSeparation);
 			
@@ -136,7 +153,7 @@ var geneticOverviewMap = geneticOverviewMap || {};
 			
 			var chrId = "chrView"+tripalMap.lGNameReduction(linkageGroup, dc.mapName); 
 			var sanitizedChrId = tripalMap.encodeHtmlIdAttrib(chrId);
-			xChrStartOffset = count*glyphDistanceSeparation;
+			xChrStartOffset = count*glyphDistanceSeparation + 5;
 			yChrStartOffset = 2*chr.offsets.vertical + maxChrLabelVerticalHeight;
 			chrView.append("rect")
 				.data(dataLG)
@@ -231,12 +248,14 @@ var geneticOverviewMap = geneticOverviewMap || {};
 
 			svg = d3.select("#mo_glyph_scroll")
 				.append("svg")
+				.attr("class", "TripalMap")
 				.attr("width", container.width).attr("height", container.height);
 		}
 		else {
 	       svg = d3.select("#select_fieldset_genetic_map_overview")
 	            .append("svg")
-	            .attr("width", container.width).attr("height", container.height);
+	            .attr("class", "TripalMap")
+				.attr("width", container.width).attr("height", container.height);
 	    }
 
 	    return svg;
@@ -249,7 +268,7 @@ var geneticOverviewMap = geneticOverviewMap || {};
 
 		var numQTLs = 0;
 		dataLG.forEach(function(d) {
-			if (d.genetic_marker_type === "QTL"){
+			if (d.genetic_marker_type === "QTL") {
 				numQTLs += 1;
 			}
 			if (d.hasOwnProperty("marker_start_pos")) {
@@ -264,7 +283,7 @@ var geneticOverviewMap = geneticOverviewMap || {};
             d.chrStartY = (d.hasOwnProperty("marker_start_pos")) ? d.marker_start_pos : 
              (d.hasOwnProperty("marker_qtl_peak")) ? d.marker_qtl_peak : d.marker_stop_pos; 
 		});
-		dataLG.sort(function(a, b){ return a.chrStartY - b.chrStartY; });
+		dataLG.sort(function(a, b) { return a.chrStartY - b.chrStartY; });
 
 		dataLG.forEach(function(d) {
 			

@@ -6,6 +6,76 @@ var dotplot = dotplot || {};
 
 dotplot = {  
 		
+	drawDotplotPlotly: function(primMap, primLinkageGroup, secMap, secLinkageGroup, corres ) {
+	
+		var dp = {};
+		dp['x'] = [];
+		dp['y'] = [];
+		dp['label'] = [];
+		dp['annotation'] = [];
+	    for (var ckey in corres) {
+	    	//corres: {"X17_1500":[{"linkageGroup":"LGIII","position":"184.2", "feature_id": 1233554},{"linkageGroup":"LGIIIb.3","position":"74.5943", ..}],"
+	    	if (corres.hasOwnProperty(ckey)) {
+				markerCorres = corres[ckey];
+				if (Object.keys(markerCorres).length >= 2 ) {
+					// only use the marker if it pertains to either the primary or secondary linkage group (correspondences are for the whole map)
+					if ((markerCorres[0].linkageGroup == primLinkageGroup) || (markerCorres[0].linkageGroup == secLinkageGroup)) {
+					var xPos = parseInt(markerCorres[0].position);
+					var yPos = parseInt(markerCorres[1].position);
+					dp.x.push(xPos);
+					dp.y.push(yPos);
+					dp.label.push(ckey);
+					dp.annotation.push({ x: xPos, y: yPos, text: "<a href = '"+Drupal.settings.baseUrl+markerCorres[0].feature_url+"'>{}</a>", 
+						showarrow: false, xanchor:'center', yanchor:'center', opacity: 0, hovertext: ckey });
+					}
+				}
+	    	}
+	    };
+	    
+	    var markerSize = 10;
+	    var trace1 = {
+		  x: dp.x,
+		  y: dp.y,
+		  mode: 'markers',
+		  type: 'scatter',
+		  //text: dp.label, use annotation with hover over option instead of labels, so can specify a link.
+		  marker: { 
+			  size: markerSize,
+              color: 'rgb(58, 118, 175)',
+              line: { color: 'rgb(128, 158, 193)', /*121, 172, 207)',*/ width: 1}, 
+			 },
+		  //hoverinfo: "text", - default for hoverinfo, is to show position and text if available. If do not want position to appear, specifiy: none.
+		  cliponaxis: false,
+		};
+
+		var data = [ trace1];
+
+		var layout = {
+		  
+			width: 600, 
+	        height: 600, 
+			xaxis: {
+				range: [0, (Math.max(...dp.x) + markerSize)],
+				title: primMap+'<br>'+tripalMap.lGNameReduction(primLinkageGroup, primMap),
+				layer: "below traces", 
+			},
+
+			yaxis: {
+				range: [0, (Math.max(...dp.y) + markerSize)],
+				title: secMap +'<br>'+tripalMap.lGNameReduction(secLinkageGroup, secMap),
+				layer: "below traces",
+
+			},
+			hovermode:'closest',
+			showlegend: false,
+			annotations: dp.annotation, 
+		};
+
+    	
+		Plotly.newPlot('select_fieldset_dotplot_svg', data, layout);	
+		
+	},		
+		
 	drawDotplot: function(primMap, primLinkageGroup, secMap, secLinkageGroup, corres ) {
 		// return if there is no map
 		if ((primMap === null ) || (secMap === null)) { 
@@ -58,7 +128,7 @@ dotplot = {
     	var height = 250;
     	var textColor = "#3b3b3b";
     	        	
-    	if(!data){
+    	if(!data) {
     		throw new Error('Please pass data');
     	}
 
@@ -70,7 +140,7 @@ dotplot = {
     	var lgX = options.primLinkageGroup;
     	lgX = tripalMap.lGNameReduction(lgX, mapX);
     	var xLabel = [mapX, lgX, "0 -"+xMax+" cM"];
-
+    	
     	// x-axis
        	var xScale = d3.scaleLinear().range([0, width]);
     	// prevent dots overlapping the axis. Add buffer to data domain
@@ -95,7 +165,7 @@ dotplot = {
     	xAxisg.selectAll("text")
 			.data(xLabel)
     		.enter().append("text")
-    		.attr("class", "label").attr("y", function(d,i){ return (i*18);})
+    		.attr("class", "label").attr("y", function(d,i) { return (i*18);})
  			.style("text-anchor", "start").style("font-size", "15px").style("line-height", "18px")
     		.text(function(d) {return d;});
     	
@@ -134,7 +204,7 @@ dotplot = {
     	yAxisg.selectAll("text")
 			.data(yLabel)
     		.enter().append("text")
-    		.attr("class", "label").attr("x", -180).attr("y", function(d, i){ return (yAxisgy + (i*18));})
+    		.attr("class", "label").attr("x", -180).attr("y", function(d, i) { return (yAxisgy + (i*18));})
  			.style("text-anchor", "start").style("font-size", "15px").style("line-height", "18px")
     		.text(function(d) {return d;});
     	

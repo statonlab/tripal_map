@@ -6,8 +6,8 @@ function tripal_map_enable() {
   user_role_grant_permissions( DRUPAL_AUTHENTICATED_RID, array('view tripalmap mapviewer'));
   user_role_grant_permissions( DRUPAL_ANONYMOUS_RID,  array('view tripalmap correspondence matrix')); 
   user_role_grant_permissions( DRUPAL_AUTHENTICATED_RID, array('view tripalmap correspondence matrix'));
-  user_role_grant_permissions( DRUPAL_ANONYMOUS_RID,  array('view tripalmap dotplot'));
-  user_role_grant_permissions( DRUPAL_AUTHENTICATED_RID, array('view tripalmap dotplot'));
+  user_role_grant_permissions( DRUPAL_ANONYMOUS_RID,  array('view tripalmap dot plot'));
+  user_role_grant_permissions( DRUPAL_AUTHENTICATED_RID, array('view tripalmap dot plot'));
   
 }
 
@@ -20,8 +20,9 @@ function tripal_map_install() {
 
   // set defaults for Drupal local variables configurable by the Admin page.
   variable_set('tripal_map_video_tutorial_link', st('https://youtu.be/k3rR2obwBvw'));
-  variable_set('tripal_map_text_tutorial_link', st('https://www.coolseasonfoodlegume.org/node/1123110'));
+  variable_set('tripal_map_text_tutorial_link',  st('/MapViewer_Manual')); //'https://www.coolseasonfoodlegume.org/node/1123110'
   variable_set('tripal_map_sample_map_tutorial_link', st(''));
+  variable_set('tripal_map_example_exported_figures_tutorial_link', st('/MapViewer_Exports'));
   variable_set('tripal_map_chado_marker_start_pos_name', st('start'));
   variable_set('tripal_map_chado_marker_stop_pos_name', st('stop'));
   variable_set('tripal_map_chado_marker_qtl_peak_pos_name', st('qtl_peak'));
@@ -45,11 +46,11 @@ function tripal_map_install() {
     ));
   }
 
-  $cvterm = tripal_get_cvterm(array('name' => 'mapviewer_marker_mappositions','cv_id' => array('name' =>'tripal_map')));
+  $cvterm = tripal_get_cvterm(array('name' => 'mapviewer_mappos','cv_id' => array('name' =>'tripal_map')));
   if (!$cvterm) { // add the cvterm if it does not already exist
     tripal_insert_cvterm(array(
-    'id' => 'tripal_map:mapviewer_marker_mappositions',
-    'name' => 'mapviewer_marker_mappositions',
+    'id' => 'tripal_map:mapviewer_mappos',
+    'name' => 'mapviewer_mappos',
     'cv_name' => 'tripal_map',
     'definition' => 'Displays link for genetic marker map position on the MapViewer map',
     ));
@@ -64,8 +65,8 @@ function tripal_map_install() {
   ));  
 
   tripal_insert_cvterm(array(
-  		'id'		=> 'mapviewer_marker_mappositions',
-  		'name'		=> 'mapviewer_marker_mappositions',
+  		'id'		=> 'mapviewer_mappos',
+  		'name'		=> 'mapviewer_mappos',
   		'cv_name'	=> 'tripal_map',
   		'definition'=> 'Displays link for genetic marker map position on the MapViewer map',
   		'db_name'	=> 'tripal',
@@ -91,6 +92,7 @@ function tripal_map_uninstall() {
     'tripal_map_video_tutorial_link',
     'tripal_map_text_tutorial_link',
     'tripal_map_sample_map_tutorial_link',
+    'tripal_map_example_exported_figures_tutorial_link',
     'tripal_map_marker_name_abbrev',
     'tripal_map_toolbar_organism_common_name',
     'tripal_map_toolbar_organism_genus_species',
@@ -239,7 +241,7 @@ function tripal_map_create_genetic_marker_mview() {
   FROM {feature} F
   INNER JOIN {feature_relationship} FR 	ON FR.subject_id = F.feature_id AND
     F.type_id = (SELECT cvterm_id  FROM {cvterm} WHERE name = 'marker_locus' AND
-    cv_id = (SELECT cv_id FROM {cv} WHERE name = 'sequence')) AND
+    cv_id = (SELECT cv_id FROM {cv} WHERE name = 'MAIN')) AND
     FR.type_id = (SELECT cvterm_id  FROM {cvterm} WHERE {cvterm}.name = 'instance_of' AND
     cv_id = (SELECT cv_id FROM {cv} WHERE name = 'relationship'))
   INNER JOIN {feature} F2               	ON FR.object_id = F2.feature_id AND

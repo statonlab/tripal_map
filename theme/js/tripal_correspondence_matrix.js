@@ -1,7 +1,7 @@
 
 /* 
  * File: tripal_correspondence_matrix.js
- * Obtain settings from MapViewer PHP form, call linkageGroup draw to display selected chromosomes.
+ * Obtain settings from MapViewer PHP form, call correspondence matrix draw to display selected map correspondences.
  */
 
 
@@ -16,7 +16,7 @@
        	var correspondences =	Drupal.settings.mapCorrespondenceMatrixJS.correspondences;
 
         var container =  "#select_fieldset_correspondence_matrix";
-    	$(container).before('<div></div><div id ="select_fieldset_correspondence_matrix_svg" width="100%"></div>');
+    	$(container).before('<div></div><div class = "TripalMap" id ="select_fieldset_correspondence_matrix_svg" width="100%"></div>');
 
     	correspondenceMatrix.drawCorrespondenceMatrix(rows, cols, correspondences);
 

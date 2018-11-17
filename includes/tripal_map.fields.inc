@@ -20,7 +20,8 @@ function tripal_map_bundle_fields_info($entity_type, $bundle) {
   $fields = array();
 
   // Use the 'data_table' property of the bundle to determine if want the field to be associated with this bundle.
-  if (isset($bundle->data_table) AND ($bundle->data_table == 'featuremap' OR $bundle->data_table == 'organism') ) {
+  if (isset($bundle->data_table) AND ($bundle->data_table == 'featuremap' 
+    OR $bundle->data_table == 'organism')) {
 
     // MapViewer Overview Field.
     //---------------------------------
@@ -48,8 +49,8 @@ function tripal_map_bundle_fields_info($entity_type, $bundle) {
     // Adds the marker map position link to mapviewer on the feature/markerpage. 
     	
     // Then describe the field defined by that term.
-    $field_name = 'tripal_map__mapviewer_marker_mappositions';
-    $field_type = 'tripal_map__mapviewer_marker_mappositions';
+    $field_name = 'tripal_map__mapviewer_mappos';
+    $field_type = 'tripal_map__mapviewer_mappos';
     $fields[$field_name] = array(
       'field_name' => $field_name,
       'type' => $field_type,
@@ -80,7 +81,8 @@ function tripal_map_bundle_instances_info($entity_type, $bundle) {
   
   // Map.
   //===============
-  if (isset($bundle->data_table) AND ($bundle->data_table == 'featuremap' OR  $bundle->data_table == 'organism')) {
+  if (isset($bundle->data_table) AND ($bundle->data_table == 'featuremap'
+    OR $bundle->data_table == 'organism')) {
 
     // Map Overview Summary Field.
     //---------------------------------
@@ -124,12 +126,12 @@ function tripal_map_bundle_instances_info($entity_type, $bundle) {
   	// MapViewer Marker Map Positions Field.
   	//---------------------------------
   	// Displays link to marker map position in the MapViewer on Features page 
-  	$field_name = 'tripal_map__mapviewer_marker_mappositions';
-  	$field_type = 'tripal_map__mapviewer_marker_mappositions';
+  	$field_name = 'tripal_map__mapviewer_mappos';
+  	$field_type = 'tripal_map__mapviewer_mappos';
   	
   	$bundle_name = $bundle->name;
   	$field_label = $field_name;
-  	tripal_ds_create_field($field_label, $field_name, $bundle_name);
+  	//tripal_ds_create_field($field_label, $field_name, $bundle_name);
   	
   	$instances[$field_name] =  array(
   	  'field_name' => $field_name,
@@ -146,13 +148,13 @@ function tripal_map_bundle_instances_info($entity_type, $bundle) {
   	  'base_table' => $bundle->data_table,
   	),
   	  'widget' => array(
-  	  'type' => 'tripal_map__mapviewer_marker_mappositions_widget',
+  	  'type' => 'tripal_map__mapviewer_mappos_widget',
   	  'settings' => array(),
   	),
   	  'display' => array(
   	    'default' => array(
   	    'label' => 'hidden',
-  	    'type' => 'tripal_map__mapviewer_marker_mappositions_formatter',
+  	    'type' => 'tripal_map__mapviewer_mappos_formatter',
   	    'settings' => array(),
   	    ),
   	  ),
@@ -193,7 +195,7 @@ function tripal_map_bundle_create_user_field($new_field, $bundle) {
   tripal_map_bundle_create_user_field_helper($new_field, $bundle, $field_type, $description);
   
   // MapViewer Marker Map Positions
-  $field_type = 'tripal_map__mapviewer_marker_mappositions';
+  $field_type = 'tripal_map__mapviewer_mappos';
   $description = 'Displays link to marker map position in the MapViewer for Features';
   tripal_map_bundle_create_user_field_helper($new_field, $bundle, $field_type, $description);
   
