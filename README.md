@@ -46,8 +46,8 @@ Please refer to this [page](https://https://www.drupal.org/project/tripal) and
 
 # Download
 
-The TripalMap module can be downloaded from GitHub:
-https://github.com/tripal/tripal_map
+The TripalMap module can be downloaded from GitLab:
+https://gitlab.com/mainlabwsu/tripal_map
 
 
 # Installation
