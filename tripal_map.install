@@ -2,14 +2,15 @@
 
 function tripal_map_enable() {
   // Grant the ability to view tripalmap mapviewer to anonomous users by default.
-  user_role_grant_permissions(DRUPAL_ANONYMOUS_RID, ['view tripalmap mapviewer']);
-  user_role_grant_permissions(DRUPAL_AUTHENTICATED_RID, ['view tripalmap mapviewer']);
-  user_role_grant_permissions(DRUPAL_ANONYMOUS_RID, ['view tripalmap correspondence matrix']);
-  user_role_grant_permissions(DRUPAL_AUTHENTICATED_RID, ['view tripalmap correspondence matrix']);
-  user_role_grant_permissions(DRUPAL_ANONYMOUS_RID, ['view tripalmap dot plot']);
-  user_role_grant_permissions(DRUPAL_AUTHENTICATED_RID, ['view tripalmap dot plot']);
-
+  user_role_grant_permissions( DRUPAL_ANONYMOUS_RID,  array('view tripalmap mapviewer'));
+  user_role_grant_permissions( DRUPAL_AUTHENTICATED_RID, array('view tripalmap mapviewer'));
+  user_role_grant_permissions( DRUPAL_ANONYMOUS_RID,  array('view tripalmap correspondence matrix')); 
+  user_role_grant_permissions( DRUPAL_AUTHENTICATED_RID, array('view tripalmap correspondence matrix'));
+  user_role_grant_permissions( DRUPAL_ANONYMOUS_RID,  array('view tripalmap dot plot'));
+  user_role_grant_permissions( DRUPAL_AUTHENTICATED_RID, array('view tripalmap dot plot'));
+  
 }
+
 
 /**
  * Implements hook_install().
@@ -17,14 +18,9 @@ function tripal_map_enable() {
  */
 function tripal_map_install() {
 
-  $check = tripal_map_verify_requirements();
-  if (!$check) {
-    return;
-  }
-
   // set defaults for Drupal local variables configurable by the Admin page.
   variable_set('tripal_map_video_tutorial_link', st('https://youtu.be/k3rR2obwBvw'));
-  variable_set('tripal_map_text_tutorial_link', st('/MapViewer_Manual')); //'https://www.coolseasonfoodlegume.org/node/1123110'
+  variable_set('tripal_map_text_tutorial_link',  st('/MapViewer_Manual')); //'https://www.coolseasonfoodlegume.org/node/1123110'
   variable_set('tripal_map_sample_map_tutorial_link', st(''));
   variable_set('tripal_map_example_exported_figures_tutorial_link', st('/MapViewer_Exports'));
   variable_set('tripal_map_chado_marker_start_pos_name', st('start'));
@@ -35,36 +31,30 @@ function tripal_map_install() {
 
   // Create controlled vocabulary and terms needed for Map Overview and Marker Map Position fields 
   $cvname = 'tripal_map'; // first check if the cv exists
-  $cv = tripal_get_cv(['name' => $cvname]);
+  $cv = tripal_get_cv(array('name' => $cvname));
   if (!$cv) {
-    $cv = tripal_insert_cv('tripal_map', 'A local vocabulary that contains terms used for tripal_map.');
+  	$cv = tripal_insert_cv('tripal_map', 'A local vocabulary that contains terms used for tripal_map.' );
   }
-
-  $cvterm = tripal_get_cvterm([
-    'name' => 'mapviewer_overview',
-    'cv_id' => ['name' => 'tripal_map'],
-  ]);
+  
+  $cvterm = tripal_get_cvterm(array('name' => 'mapviewer_overview','cv_id' => array('name' =>'tripal_map')));
   if (!$cvterm) { // add the cvterm if it does not already exist
-    tripal_insert_cvterm([
-      'id' => 'tripal_map:mapviewer_overview',
-      'name' => 'mapviewer_overview',
-      'cv_name' => 'tripal_map',
-      'definition' => 'Displays MapViewer Overview linkage group glyphs',
-    ]);
+    tripal_insert_cvterm(array(
+    'id'         => 'tripal_map:mapviewer_overview',
+    'name'       => 'mapviewer_overview',
+    'cv_name'    => 'tripal_map',
+    'definition' => 'Displays MapViewer Overview linkage group glyphs',
+    ));
   }
 
-  $cvterm = tripal_get_cvterm([
+  $cvterm = tripal_get_cvterm(array('name' => 'mapviewer_mappos','cv_id' => array('name' =>'tripal_map')));
+  if (!$cvterm) { // add the cvterm if it does not already exist
+    tripal_insert_cvterm(array(
+    'id' => 'tripal_map:mapviewer_mappos',
     'name' => 'mapviewer_mappos',
-    'cv_id' => ['name' => 'tripal_map'],
-  ]);
-  if (!$cvterm) { // add the cvterm if it does not already exist
-    tripal_insert_cvterm([
-      'id' => 'tripal_map:mapviewer_mappos',
-      'name' => 'mapviewer_mappos',
-      'cv_name' => 'tripal_map',
-      'definition' => 'Displays link for genetic marker map position on the MapViewer map',
-    ]);
-  }
+    'cv_name' => 'tripal_map',
+    'definition' => 'Displays link for genetic marker map position on the MapViewer map',
+    ));
+  }   
   /*
   tripal_insert_cvterm(array(
   		'id'		=> 'mapviewer_overview',
@@ -81,37 +71,16 @@ function tripal_map_install() {
   		'definition'=> 'Displays link for genetic marker map position on the MapViewer map',
   		'db_name'	=> 'tripal',
   ));*/
-
-
+  
+  
   // add materialized views
   tripal_map_add_mviews();
 }
 
 
 /**
- * To make cross-compatiblity easier, check for requirements here instead of in
- * the module.info file.
- *
- * @return bool
- */
-function tripal_map_verify_requirements() {
-  //Is Tripal 3 enabled?
-
-  $t3 = module_exists('tripal');
-  $t2 = (module_exists('tripal_core') && module_exists('tripal_views') && module_exists('tripal_db') && module_exists('tripal_cv'));
-
-
-  if (!$t3 && !$t2) {
-    return FALSE;
-  }
-
-  return TRUE;
-}
-
-/**
  * Implements hook_uninstall().
  * Performs actions when the modules is uninstalled.
- *
  * @ingroup tripal_map
  */
 function tripal_map_uninstall() {
@@ -119,7 +88,7 @@ function tripal_map_uninstall() {
   tripal_map_drop_mview('tripal_map_genetic_markers_mview');
   tripal_map_drop_mview('tripal_map_qtl_and_mtl_mview');
 
-  $variables = [
+  $variables = array(
     'tripal_map_video_tutorial_link',
     'tripal_map_text_tutorial_link',
     'tripal_map_sample_map_tutorial_link',
@@ -131,9 +100,9 @@ function tripal_map_uninstall() {
     'tripal_map_chado_marker_stop_pos_name',
     'tripal_map_chado_marker_qtl_peak_pos_name',
     'tripal_map_correspondences_last_update',
-    'tripal_map_map_overview_exclude_maps',
-
-  ];
+  	'tripal_map_map_overview_exclude_maps',
+  		
+  );
   foreach ($variables as $var) {
     variable_del($var);
   }
@@ -141,7 +110,7 @@ function tripal_map_uninstall() {
 
 
 function tripal_map_requirements($phase) {
-  $requirements = [];
+  $requirements = array();
   if ($phase == 'install') {
     // EXPLANATION: It is essential that Chado be installed for almost all
     // Tripal modules. Therefore, the following code checks to ensure Chado is
@@ -150,20 +119,18 @@ function tripal_map_requirements($phase) {
 
     // make sure chado is installed
     if (!$GLOBALS["chado_is_installed"]) {
-      $requirements ['tripal_map'] = [
+      $requirements ['tripal_map'] = array(
         'title' => "tripal_map",
         'value' => "ERROR: Chado must be installed before this module can be enabled",
         'severity' => REQUIREMENT_ERROR,
-      ];
+      );
     }
   }
   return $requirements;
 }
 
 /**
- * Creates a materialized view that stores the genetic markers for all
- * featuremaps
- *
+ * Creates a materialized view that stores the genetic markers for all featuremaps
  * @ingroup tripal_map
  */
 function tripal_map_add_mviews() {
@@ -174,7 +141,7 @@ function tripal_map_add_mviews() {
   // add QTLs and MTLs materialized view
   // try obtaining abbreviations first
   tripal_map_create_QTL_and_MTL_mview();
-
+  
 }
 
 
@@ -184,60 +151,28 @@ function tripal_map_create_QTL_and_MTL_mview() {
   $comment = 'A list of the maps and their corresponding QTL and heritable phenotypic markers, for all genus/species.';
   tripal_map_drop_mview($mview_name);
 
-  $schema = [
+  $schema = array(
     'table' => $mview_name,
     'description' => $comment,
-    'fields' => [
-      'map_name' => ['type' => 'varchar', 'length' => 255, 'not null' => TRUE,],
-      'map_id' => ['type' => 'int', 'not null' => TRUE,],
-      'map_type' => ['type' => 'varchar', 'length' => 255, 'not null' => TRUE,],
-      'linkage_group' => [
-        'type' => 'varchar',
-        'length' => 255,
-        'not null' => FALSE,
-      ],
-      'linkage_group_id' => ['type' => 'int', 'not null' => TRUE,],
-      'marker_locus_name' => [
-        'type' => 'varchar',
-        'length' => 255,
-        'not null' => TRUE,
-      ],
-      'map_unit_type' => [
-        'type' => 'varchar',
-        'length' => 255,
-        'not null' => TRUE,
-      ],
-      'marker_type' => [
-        'type' => 'varchar',
-        'length' => 255,
-        'not null' => TRUE,
-      ],
-      'marker_pos_type' => [
-        'type' => 'varchar',
-        'length' => 255,
-        'not null' => TRUE,
-      ],
-      'marker_pos' => [
-        'type' => 'varchar',
-        'length' => 255,
-        'not null' => TRUE,
-      ],
-      'organism_id' => ['type' => 'int', 'not null' => TRUE,],
-      'genus' => ['type' => 'varchar', 'length' => 255, 'not null' => TRUE,],
-      'species' => ['type' => 'varchar', 'length' => 255, 'not null' => TRUE,],
-      'common_name' => ['type' => 'varchar', 'length' => 255,],
-      'feature_id' => [
-        'type' => 'varchar',
-        'length' => 255,
-        'not null' => TRUE,
-      ],
-      'featurepos_id' => [
-        'type' => 'varchar',
-        'length' => 255,
-        'not null' => TRUE,
-      ],
-    ],
-  ];
+    'fields' => array(
+      'map_name' => array('type' => 'varchar', 'length' => 255, 'not null' => TRUE, ),
+      'map_id' => array('type' => 'int', 'not null' => TRUE, ),
+      'map_type' => array('type' => 'varchar', 'length' => 255, 'not null' => TRUE, ),
+      'linkage_group' => array('type' => 'varchar', 'length' => 255, 'not null' => FALSE, ),
+      'linkage_group_id' => array('type' => 'int', 'not null' => TRUE, ),
+      'marker_locus_name' => array('type' => 'varchar', 'length' => 255, 'not null' => TRUE, ),
+      'map_unit_type' => array('type' => 'varchar', 'length' => 255, 'not null' => TRUE, ),
+      'marker_type' => array('type' => 'varchar', 'length' => 255, 'not null' => TRUE, ),
+      'marker_pos_type' => array('type' => 'varchar', 'length' => 255, 'not null' => TRUE, ),
+      'marker_pos' => array('type' => 'varchar', 'length' => 255, 'not null' => TRUE, ),
+      'organism_id' => array('type' => 'int', 'not null' => TRUE, ),
+      'genus' => array('type' => 'varchar', 'length' => 255, 'not null' => TRUE, ),
+      'species' => array('type' => 'varchar', 'length' => 255, 'not null' => TRUE, ),
+      'common_name' => array('type' => 'varchar', 'length' => 255, ),
+      'feature_id' => array('type' => 'varchar', 'length' => 255, 'not null' => TRUE, ),
+      'featurepos_id' => array('type' => 'varchar', 'length' => 255, 'not null' => TRUE, ),
+    )
+  );
 
   $sql = "
   SELECT FM.name as map_name, FM.featuremap_id as map_id, FMP.value as map_type, F2.name as linkage_group, F2.feature_id as linkage_group_id,
@@ -264,7 +199,7 @@ function tripal_map_create_QTL_and_MTL_mview() {
 
   // Create the MView
   tripal_map_create_mview($mview_name, $schema, $sql, $comment);
-
+   
 }
 
 
@@ -275,56 +210,28 @@ function tripal_map_create_genetic_marker_mview() {
   Required for plotting markers with their corresponding linkage groups.';
   tripal_map_drop_mview($mview_name);
 
-  $schema = [
+  $schema = array(
     'table' => $mview_name,
     'description' => $comment,
-    'fields' => [
-      'marker_locus_name' => [
-        'type' => 'varchar',
-        'length' => 255,
-        'not null' => TRUE,
-      ],
-      'marker_locus_id' => ['type' => 'int', 'not null' => TRUE,],
-      'genetic_marker_name' => [
-        'type' => 'varchar',
-        'length' => 255,
-        'not null' => TRUE,
-      ],
-      'map_unit_type' => [
-        'type' => 'varchar',
-        'length' => 255,
-        'not null' => TRUE,
-      ],
-      'marker_type' => [
-        'type' => 'varchar',
-        'length' => 255,
-        'not null' => TRUE,
-      ],
-      'map_name' => ['type' => 'varchar', 'length' => 255, 'not null' => TRUE,],
-      'map_id' => ['type' => 'int', 'not null' => TRUE,],
-      'map_type' => ['type' => 'varchar', 'length' => 255, 'not null' => TRUE,],
-      'linkage_group' => [
-        'type' => 'varchar',
-        'length' => 255,
-        'not null' => TRUE,
-      ],
-      'linkage_group_id' => ['type' => 'int', 'not null' => TRUE,],
-      'marker_pos' => [
-        'type' => 'varchar',
-        'length' => 255,
-        'not null' => TRUE,
-      ],
-      'marker_pos_type' => [
-        'type' => 'varchar',
-        'length' => 255,
-        'not null' => TRUE,
-      ],
-      'organism_id' => ['type' => 'int', 'not null' => TRUE,],
-      'genus' => ['type' => 'varchar', 'length' => 255, 'not null' => TRUE,],
-      'species' => ['type' => 'varchar', 'length' => 255, 'not null' => TRUE,],
-      'common_name' => ['type' => 'varchar', 'length' => 255,],
-    ],
-  ];
+    'fields' => array(
+      'marker_locus_name' => array('type' => 'varchar', 'length' => 255, 'not null' => TRUE, ),
+      'marker_locus_id' => array('type' => 'int', 'not null' => TRUE, ),
+      'genetic_marker_name' => array('type' => 'varchar', 'length' => 255, 'not null' => TRUE, ),
+      'map_unit_type' => array('type' => 'varchar', 'length' => 255, 'not null' => TRUE, ),
+      'marker_type' => array('type' => 'varchar', 'length' => 255, 'not null' => TRUE, ),
+      'map_name' => array('type' => 'varchar', 'length' => 255, 'not null' => TRUE, ),
+      'map_id' => array('type' => 'int', 'not null' => TRUE, ),
+      'map_type' => array('type' => 'varchar', 'length' => 255, 'not null' => TRUE, ),
+      'linkage_group' => array('type' => 'varchar', 'length' => 255, 'not null' => TRUE, ),
+      'linkage_group_id' => array('type' => 'int', 'not null' => TRUE, ),
+      'marker_pos' => array('type' => 'varchar', 'length' => 255, 'not null' => TRUE, ),
+      'marker_pos_type' => array('type' => 'varchar', 'length' => 255, 'not null' => TRUE, ),
+      'organism_id' => array('type' => 'int', 'not null' => TRUE, ),
+      'genus' => array('type' => 'varchar', 'length' => 255, 'not null' => TRUE, ),
+      'species' => array('type' => 'varchar', 'length' => 255, 'not null' => TRUE, ),
+      'common_name' => array('type' => 'varchar', 'length' => 255, ),
+    )
+  );
 
   $sql = "
   SELECT F.uniquename as marker_locus_name, F.feature_id as marker_locus_id, F2.uniquename as genetic_marker_name,
@@ -357,10 +264,10 @@ function tripal_map_create_genetic_marker_mview() {
   INNER JOIN {cvterm} C 				ON C.cvterm_id = FPP.type_id
   INNER JOIN {organism} O 				ON FMO.organism_id = O.organism_id
   ";
-
+  
   // Create the MView
   tripal_map_create_mview($mview_name, $schema, $sql, $comment);
-
+  
 }
 
 function tripal_map_create_mview($mview_name, $schema, $sql, $comment) {
