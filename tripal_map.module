@@ -401,8 +401,9 @@ function tripal_map_get_feature_node_page_path($id) {
 
   // tripal v3 link (entity)
   if (function_exists('chado_get_record_entity_by_table') && $id) {
+
     $entity_id = chado_get_record_entity_by_table($data_table, $id);
-    if(!$entity_id) {
+    if(!$entity_id && $gm_feature_id) {
       // the marker locus may not have an entity associated with it so use the feature id of the genetic marker the marker locus is an instance of, instead.
       $entity_id = chado_get_record_entity_by_table($data_table, $gm_feature_id);
     }
