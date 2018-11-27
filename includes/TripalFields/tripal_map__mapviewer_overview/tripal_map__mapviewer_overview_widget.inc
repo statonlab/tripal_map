@@ -50,11 +50,8 @@ class tripal_map__mapviewer_overview_widget extends ChadoFieldWidget {
    public function form(&$widget, &$form, &$form_state, $langcode, $items, $delta, $element) {
   	
   	parent::form($widget, $form, $form_state, $langcode, $items, $delta, $element);
-  	$widget['value'] = array(
-  			'#type' => 'value',
-  			'#value' => 'MapViewer Overview Field',
-  	);
-  	 
+
+  	
   }
   
   /**

@@ -30,9 +30,6 @@ class tripal_map__mapviewer_overview extends ChadoField {
     'term_accession' => 'mapviewer_overview',
     'term_fixed' => FALSE,              // allow site admin to change the term type
     'auto_attach' => FALSE,             // disable for fields that load slowly. Load asynchronously, not attaching to display or web services
-    'chado_table' => 'featuremap',      // Instance maps to this Chado table.
-    'chado_column' => 'featuremap_id',  // Field value comes from this Chado table column
-    'base_table' => 'featuremap',
   );
 
   public static $no_ui = FALSE; // do not allow users to create this field or instances of this field through the UI. Instead use field_create_field() or field_create_instance().

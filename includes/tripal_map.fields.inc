@@ -84,6 +84,14 @@ function tripal_map_bundle_instances_info($entity_type, $bundle) {
   if (isset($bundle->data_table) AND ($bundle->data_table == 'featuremap'
     OR $bundle->data_table == 'organism')) {
 
+    if ($bundle->data_table == 'organism'){
+      $chado_table = 'organism_featuremap';
+      $base_table = 'featuremap';
+    }else {
+      $chado_table = 'featuremap';
+      $base_table = 'featuremap';
+    }
+
     // Map Overview Summary Field.
     //---------------------------------
     // Sumarizes map overview on the map page.
@@ -98,9 +106,9 @@ function tripal_map_bundle_instances_info($entity_type, $bundle) {
       'required' => FALSE,
       'settings' => array(
         'auto_attach' => FALSE,
-        'chado_table' => $bundle->data_table,
+        'chado_table' => $chado_table,
         'chado_column' => 'featuremap_id',
-        'base_table' => $bundle->data_table,
+        'base_table' => $base_table,
         'term_name' => 'mapviewer_overview',
         'term_accession' => 'mapviewer_overview',
         'term_vocabulary' => 'tripal_map',
