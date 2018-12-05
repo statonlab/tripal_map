@@ -620,6 +620,7 @@ function tripal_map_draw_mapViewer($form, &$form_state) {
   drupal_add_js(drupal_get_path('module', 'tripal_map') . '/theme/js/tripal_map_utils.js');
   drupal_add_js(drupal_get_path('module', 'tripal_map') . '/theme/js/config_mapViewer.js');
   drupal_add_js(drupal_get_path('module', 'tripal_map') . '/theme/js/tripal_mapViewer.js');
+  drupal_add_js(array( 'tripal_map' => array('modulePath' => drupal_get_path( 'module', 'tripal_map' )) ),'setting');
   
   return $form;
 }
