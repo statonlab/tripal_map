@@ -38,6 +38,8 @@ function tripal_map_genetic_map_overview_form($form, &$form_state, $featuremap_i
   drupal_add_js(drupal_get_path('module', 'tripal_map') . '/theme/js/tripal_map_utils.js');
   drupal_add_js(drupal_get_path('module', 'tripal_map') . '/theme/js/draw_genetic_map_overview.js');
   drupal_add_js(drupal_get_path('module', 'tripal_map') . '/theme/js/tripal_genetic_map_overview.js');
+  drupal_add_js(array( 'tripal_map' => array('modulePath' => drupal_get_path( 'module', 'tripal_map' )) ),'setting');
+  
   $form = tripal_map_attach_d3_lib($form);
   $form['#attached']['js'][] = drupal_get_path('module', 'tripal_map') . '/theme/js/libraries/FileSaver.js';
   $form['#attached']['js'][] = drupal_get_path('module', 'tripal_map') . '/theme/js/libraries/canvas-to-blob.min.js';
