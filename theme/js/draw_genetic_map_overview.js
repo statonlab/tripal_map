@@ -1,4 +1,3 @@
-
 ////////////////////////////////////////////////////////////
 // Display genetic map overview with D3.js
 // Draw the glyphs for each chromosome of the map. Clicking on a glyph will 
@@ -92,7 +91,7 @@ var geneticOverviewMap = geneticOverviewMap || {};
 
     var pngFileName = 'MapOverview_' + dc.mapName + '.png'; 
 	var stp = chrView.append("svg:image");
-	stp.attr("xlink:href", Drupal.settings.baseUrl+"/sites/all/modules/tripal_map/theme/images/save_as_png.png")
+	stp.attr("xlink:href", Drupal.settings.baseUrl+"/"+Drupal.settings.tripal_map.modulePath+"/theme/images/save_as_png.png")
 		.attr('width', 32)
 		.attr('height', 23)
 		.attr("transform", "translate(" +  (-marginChr.left) + "," + (chr.offsets.topLabel.y + 6) +")")
