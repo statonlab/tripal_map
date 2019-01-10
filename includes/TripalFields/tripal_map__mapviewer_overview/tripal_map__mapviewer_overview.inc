@@ -71,9 +71,29 @@ class tripal_map__mapviewer_overview extends ChadoField {
         $query = db_select('chado.featuremap_organism', 'fo')->fields('fo', ['featuremap_id']);
         $query->join('chado.featuremap', 'f', 'f.featuremap_id = fo.featuremap_id');
         $query->fields('f', ['name']);
-        //only include featuremaps in the mview
-        $query->join('chado.tripal_map_genetic_markers_mview', 'mview', 'mview.map_id =f.featuremap_id');
-        $query->join('chado.tripal_map_qtl_and_mtl_mview', 'mview', 'mview.map_id =f.featuremap_id');
+
+        // only include featuremaps in the mview
+        // and only use mviews if exist
+        $mview1 = NULL;        
+        if (db_table_exists('chado.tripal_map_genetic_markers_mview')) {
+            $mview1 = db_select('chado.tripal_map_genetic_markers_mview', 'mview1')->fields('mview1', ['map_id']);
+        }
+        $mview2 = NULL;
+        if (db_table_exists('chado.tripal_map_qtl_and_mtl_mview')) {
+            $mview2 = db_select('chado.tripal_map_qtl_and_mtl_mview', 'mview2')->fields('mview2', ['map_id']);
+        }
+        $mviews = NULL;
+        if ($mview1) {
+          $mviews = $mview1;
+          if ($mview2) {
+            $mviews->union($mview2);
+          }
+        }
+        else if ($mview2) {
+          $mviews = $mview2;
+        }
+
+        $query->join($mviews, 'mview', 'mview.map_id = f.featuremap_id');
         $query->condition('fo.organism_id', $entity->chado_record->organism_id);
         $featuremaps = $query->execute()->fetchAll();
         
