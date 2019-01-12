@@ -1,4 +1,3 @@
-
 /* 
  * File: tripal_mapViewer.js
  * Obtain settings from MapViewer PHP form, call linkageGroup draw to display selected chromosomes.
@@ -106,7 +105,7 @@
 	    
 		var pngFileName = 'MapViewer_' + mapName + '_' + linkageGroupName + '_vs_' + mapComparisonName + '_' + linkageGroupComparisonName + '.png'; 
 		var stp = svg.append("svg:image");
-		stp.attr("xlink:href", Drupal.settings.baseUrl+"/sites/all/modules/tripal_map/theme/images/save_as_png.png")
+		stp.attr("xlink:href", Drupal.settings.baseUrl+"/"+Drupal.settings.tripal_map.modulePath+"/theme/images/save_as_png.png")
 		.attr('width', 35)
 		.attr('height', 25)
 		.attr("transform", "translate(" + 0 + "," + 0 +")")

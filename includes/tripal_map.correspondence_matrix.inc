@@ -462,7 +462,8 @@ function tripal_map_draw_correspondence_matrix($form, &$form_state) {
   drupal_add_js(drupal_get_path('module', 'tripal_map') . '/theme/js/tripal_map_utils.js');
   drupal_add_js(drupal_get_path('module', 'tripal_map') . '/theme/js/draw_correspondence_matrix.js'); 
   drupal_add_js(drupal_get_path('module', 'tripal_map') . '/theme/js/tripal_correspondence_matrix.js');
-
+  drupal_add_js(array( 'tripal_map' => array('modulePath' => drupal_get_path( 'module', 'tripal_map' )) ),'setting');
+  
   return $form;
 }
 

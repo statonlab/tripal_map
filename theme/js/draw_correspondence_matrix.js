@@ -1,4 +1,3 @@
-
 ////////////////////////////////////////////////////////////
 // Display correspondence matrix with D3.js
 
@@ -87,7 +86,7 @@ correspondenceMatrix = {
 
 		var pngFileName = 'Correspondence Matrix_' + options["mapNameCol"] + ' vs ' + options["mapNameRow"] + '.png'; 
 		var stp = svg.append("svg:image");
-		stp.attr("xlink:href", Drupal.settings.baseUrl+"/sites/all/modules/tripal_map/theme/images/save_as_png.png")
+		stp.attr("xlink:href", Drupal.settings.baseUrl+"/"+Drupal.settings.tripal_map.modulePath+"/theme/images/save_as_png.png")
 		.attr('width', 35)
 		.attr('height', 25)
 		.attr("transform", "translate(" + 0 + "," + margin.y +")")
