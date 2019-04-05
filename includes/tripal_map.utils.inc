@@ -12,7 +12,7 @@
  * function: tripal_map_get_select_list_options
  *	 Query Chado for map, linkage group and organism data with distinct selection of tuples: (map feature id, organism id)
  *
- *  @return 
+ *  @return
  *  An array containing the following data structures:
  * $map_org
  *   An array to which map ids are assigned, each containing a sub array with the primary organism the map
@@ -59,7 +59,7 @@ function tripal_map_get_select_list_options() {
   while ($pos = $results->fetchObject()) {
     $positions [] = $pos;
   }
-  
+
   // Obtain drupal variables for options to display organism common name and/or genus and species.
   $common_name = variable_get('tripal_map_toolbar_organism_common_name', FALSE);
   $genus_species = variable_get('tripal_map_toolbar_organism_genus_species', TRUE);
@@ -70,7 +70,7 @@ function tripal_map_get_select_list_options() {
   $options_org = array();
   $options_map = array();
   $options_chr = array();
-  
+
   foreach ($positions as $position) {
     $organism_id = $position->organism_id;
     $map_id = $position->map_id;
@@ -110,7 +110,7 @@ function tripal_map_get_select_list_options() {
     if (!array_key_exists($map_id, $map_org)) {
       $map_org[$map_id] = array();
       // when a map is associated with multiple organisms, the first organism is chosen
-      $map_org[$map_id]["organism_id"] = $organism_id; // change this to be an array and append on to it 
+      $map_org[$map_id]["organism_id"] = $organism_id; // change this to be an array and append on to it
       $map_org[$map_id]["linkage_groups"] = array();
     }
     if (!array_key_exists($position->linkage_group, $map_org[$map_id]["linkage_groups"])) {
@@ -126,7 +126,7 @@ function tripal_map_get_select_list_options() {
     // sort the maps by name
     natcasesort($options_map[$org_id]);
   }
- 
+
   $select_options = array();
   $select_options['map_org'] =& $map_org;
   $select_options['options_org'] =& $options_org;
@@ -142,16 +142,16 @@ function tripal_map_get_select_list_options() {
  *	 Take the correspondence data and place it into a format used by the comparison form selector lists.
  *
  * @param $select_options
- *	 correspondences array 	  
- * 
+ *	 correspondences array
+ *
  * @param $featuremap_id
- * 	 the featuremap_id for the reference map	
- * 
+ * 	 the featuremap_id for the reference map
+ *
  * @param $linkage_group_id
  *   the featuremap_id for the linkage group
- *   
+ *
  * @return
- * 	 $options_corres 
+ * 	 $options_corres
  * 	 Array used to populate the comparison form selector lists.
  *
  * @ingroup tripal_map_includes
@@ -160,8 +160,8 @@ function tripal_map_create_comparison_options($select_options, $featuremap_id, $
 
   // order the comparison map and chr according to the most correspondences
   $corres = tripal_map_create_correspondences();
-  
-  // for each map in the correspondences, lookup the organism using map_org, then take the org_id and copy it to org, map and chr.  
+
+  // for each map in the correspondences, lookup the organism using map_org, then take the org_id and copy it to org, map and chr.
   //$map_org => [225 (map_id): [organism_id: 13, linkage_groups [LG1 (lg_name): 1435102( lg_id), ..],..],..]
   $options_corres = array();
   $options_corres['map_org'] = $select_options['map_org'];
@@ -177,7 +177,7 @@ function tripal_map_create_comparison_options($select_options, $featuremap_id, $
   // [432 (map_id): num_corres: 44, linkage_groups: [1631357: 4, lg2: 6, ..]],
   // [428 (map_id): num_corres: 25, linkage_groups: [1631357: 4, lg2: 6, ..]],...]
   foreach ($corres_featuremap as $map_corres_id => $lg_corres) {
-    
+
     // lookup organism associated with map
     $org_id = tripal_map_get_organism_id($select_options['map_org'], $map_corres_id);
 
@@ -206,7 +206,7 @@ function tripal_map_create_comparison_options($select_options, $featuremap_id, $
             $options_chr[$org_id][$map_corres_id] = array();
           }
 
-          // the linkage group for the reference matches the correspondences linkage groups 
+          // the linkage group for the reference matches the correspondences linkage groups
           $options_chr[$org_id][$map_corres_id][$lg_corres_id]['num_corres'] = $lg_num_corres;
           $options_chr[$org_id][$map_corres_id][$lg_corres_id]['lg_corres_id'] = $lg_corres_id;
           $options_chr[$org_id][$map_corres_id][$lg_corres_id]['lg_text'] = $select_options['options_chr'][$org_id][$map_corres_id][$lg_corres_id] .
@@ -227,15 +227,15 @@ function tripal_map_create_comparison_options($select_options, $featuremap_id, $
         $options_chr[$org_id][$map_corres_id][$lg_id] = $lgval['lg_text'];
       }
 
-      $options_map[$org_id][$map_corres_id]['num_corres'] = $map_num_corres; 
+      $options_map[$org_id][$map_corres_id]['num_corres'] = $map_num_corres;
       $options_map[$org_id][$map_corres_id]['map_corres_id'] = $map_corres_id;
       $options_map[$org_id][$map_corres_id]['map_text'] = tripal_map_get_map_name($map_corres_id) . " (" . $map_num_corres . ")";
     }
   }
-  
+
   // lookup organism associated with map
   $featuremap_org_id = tripal_map_get_organism_id($select_options['map_org'], $featuremap_id);
-  
+
   if (count($options_chr[$featuremap_org_id]) > 1) {
     // other maps with correspondences exist, so remove the linkage group that matches the linkage group and map
     // in the reference map to avoid comparing it against itself.
@@ -244,24 +244,24 @@ function tripal_map_create_comparison_options($select_options, $featuremap_id, $
     }
 
     if (count($options_chr[$featuremap_org_id][$featuremap_id] == 0)) {
-      // remove the map from the linkage group list	
+      // remove the map from the linkage group list
       unset($options_chr[$featuremap_org_id][$featuremap_id]);
       // remove the map from the list of maps too, since it has no other linkage groups
       unset($options_map[$featuremap_org_id][$featuremap_id]);
     }
   }
-  
+
   foreach ($options_map as $org_id => $maps) {
     // sort the maps in ascending order, according to the number of correspondences per map, use uasort to preserve key association
     uasort($options_map[$org_id], 'tripal_map_sort_by_num_corres');
 
-    $tmp_map_array = $options_map[$org_id]; 
+    $tmp_map_array = $options_map[$org_id];
     foreach ($tmp_map_array as $map_id => $mapval) {
       // copy the array of sorted linkage groups, then create a fresh permanent array with only the required values
-      // iterate through using array copy, so array pointer is set correctly to to first elem 
+      // iterate through using array copy, so array pointer is set correctly to to first elem
       $options_map[$org_id][$map_id] = $mapval['map_text'];
     }
-  } 
+  }
   return $options_corres;
 
 }
@@ -330,8 +330,8 @@ function tripal_map_get_form_trigger($form_state) {
  * @param $linkage_group
  *
  * @return
- * 	 Associated linkage group id for the given feature map id and linkage group name pairing 
- * 
+ * 	 Associated linkage group id for the given feature map id and linkage group name pairing
+ *
  * @ingroup tripal_map_includes
  */
 function tripal_map_get_chr_id($map_org, $featuremap_id, $linkage_group) {
@@ -357,7 +357,7 @@ function tripal_map_get_organism_id($map_org, $featuremap_id) {
     return $map_org[$featuremap_id]["organism_id"];
   }
   else {
-    return FALSE; 
+    return FALSE;
   }
 }
 
@@ -365,11 +365,11 @@ function tripal_map_get_organism_id($map_org, $featuremap_id) {
 /**
  * function: tripal_map_get_lg_name_from_id
  *
- * @param $form_state 
+ * @param $form_state
  * @param $org_id
  * @param $featuremap_id
- * @param $linkage_group_key 
- * 
+ * @param $linkage_group_key
+ *
  * @return
  * 	 Associated linkage group name for the given linkage group id
  *
@@ -396,7 +396,7 @@ function tripal_map_get_lg_name_from_id($form_state, $org_id, $featuremap_id, $l
 function tripal_map_get_map_name($featuremap_id) {
 
   $map_name = "";
-  $results = chado_query("SELECT FM.name FROM {featuremap} FM WHERE FM.featuremap_id = " . $featuremap_id);
+  $results = chado_query("SELECT FM.name FROM {featuremap} FM WHERE FM.featuremap_id = :id", [':id' =>  $featuremap_id]);
   if ($results) {
     $map_name = $results->fetchObject()->name;
   }
@@ -446,7 +446,7 @@ function tripal_map_get_linkage_groups($features) {
       $linkage_groups[] = $feature['linkage_group'];
     }
   }
-  
+
   return $linkage_groups;
 }
 
@@ -499,13 +499,13 @@ function tripal_map_update_drupal_add_js_params($js_setting, $featuremap_id, $li
   	drupal_add_js(array($js_setting => array('rows' => $features['rows'])), 'setting');
   	drupal_add_js(array($js_setting => array('cols' => $features['cols'])), 'setting');
   	drupal_add_js(array($js_setting => array('correspondences' => $features['correspondences'])), 'setting');
-  	 
+
   	return;
   }
-  
+
   // set the map name
   $map_name = tripal_map_get_map_name($featuremap_id);
-  
+
   if ($js_setting == "mapDotPlotJS" ) {
     drupal_add_js(array($js_setting => array('primary_map' => $map_name)), 'setting');
     drupal_add_js(array($js_setting => array('prim_linkage_group' => $linkage_group)), 'setting');
@@ -516,7 +516,7 @@ function tripal_map_update_drupal_add_js_params($js_setting, $featuremap_id, $li
     drupal_add_js(array($js_setting => array('secondary_linkage_group' => $linkage_group)), 'setting');
     drupal_add_js(array($js_setting => array('dotplot_sec_genetic_features' => $features)), 'setting');
   }
-  
+
   if ($js_setting == "mapViewerDisplayJS" ) {
     // set the map name
     $my_settings = array('reference_map_name' => $map_name);
@@ -550,7 +550,7 @@ function tripal_map_update_drupal_add_js_params($js_setting, $featuremap_id, $li
 
       $map_type = tripal_get_map_type($featuremap_id);
       drupal_add_js(array($js_setting => array('reference_map_type' => $map_type)), 'setting');
- 
+
       // obtain features and pass to js
       // preprocess for MTL, change from heritable_phenotypic_marker <- MTL is specific to mainlab, don't use.
       //$features = preprocess_mtl_featuretype($features);
@@ -577,11 +577,11 @@ function tripal_map_get_elem($arr, $elem) {
  *
  * @param $form
  *   The form to be initialized
- *   
+ *
  * @param $form_state
  *   The current state of the form. The values and storage that were submitted
- *   
- * @return 
+ *
+ * @return
  *   A form array for the MapViewer form.
  *
  * @ingroup tripal_map_includes
@@ -608,10 +608,10 @@ function tripal_map_show_map_chr_form_ajax_callback($form, &$form_state) {
   $chr_compkey =& $fs_storage['chr_compkey'];
   $show_comp =& $fs_storage['show_comp'];
 
-  // note: form state storage is updated in the form init code, not here. 
+  // note: form state storage is updated in the form init code, not here.
   // This is too late for the form currently being loaded
   // to use the new form state storage values.
-  
+
   // =====================Reference=========================
   if ($form_state['triggering_element']['#name'] == 'select_organism') {
     // update reference form lists
@@ -632,11 +632,11 @@ function tripal_map_show_map_chr_form_ajax_callback($form, &$form_state) {
   if ($form_state['triggering_element']['#name'] == 'select_map') {
     // update reference map key, and reference chr list and key in the form
     $maps_key_t = $form_state['values']['select_map'];
-    $chr_key_t = key($chr[$org_key][$maps_key_t]); 
+    $chr_key_t = key($chr[$org_key][$maps_key_t]);
 
     $form['organism']['so_frame']['map_chr']['select_map']['#default_value'] = $maps_key_t;
     $form['organism']['so_frame']['map_chr']['select_chromosome']['#options'] = $chr[$org_key][$maps_key_t];
-    $form['organism']['so_frame']['map_chr']['select_chromosome']['#default_value'] = $chr_key_t;	
+    $form['organism']['so_frame']['map_chr']['select_chromosome']['#default_value'] = $chr_key_t;
 
     // get the new comparison list options to those that have correspondences for the reference map and chr
     // now that we have the new comparison list options based on the reference map and chr and reference select options,
@@ -669,7 +669,7 @@ function tripal_map_show_map_chr_form_ajax_callback($form, &$form_state) {
     $form['organism_comparison']['map_chr_comparison']['select_chromosome_comparison']['#options'] = $fs_storage['chr_comp'];
     $form['organism_comparison']['map_chr_comparison']['select_chromosome_comparison']['#default_value'] = $chr_compkey;
   }
- 
+
   if ($form_state['triggering_element']['#name'] == 'show_comparison') {
     //save the show comparison setting in form state storage, so it is accessible to JS
     tripal_map_update_storage($form_state, 'show_comp', $form_state['values']['show_comparison'], TRUE);
@@ -690,10 +690,10 @@ function tripal_map_show_map_chr_form_ajax_callback($form, &$form_state) {
  *
  * @param $form_state
  *   The current state of the form. The values and storage that were submitted
- *   
+ *
  * @param $maps_key_t
  * @param $chr_key_t
- * 
+ *
  * @return
  *   A form array for the MapViewer form.
  *
@@ -721,7 +721,7 @@ function tripal_map_update_comparison_toolbar($form, $form_state, $maps_key_t, $
   $form['organism_comparison']['map_chr_comparison']['select_map_comparison']['#default_value'] = $maps_compkey_t;
   $form['organism_comparison']['map_chr_comparison']['select_chromosome_comparison']['#options'] = $options_chr_comp[$org_compkey_t][$maps_compkey_t];
   $form['organism_comparison']['map_chr_comparison']['select_chromosome_comparison']['#default_value'] = $chr_compkey_t;
-  
+
   return $form;
 }
 
@@ -770,11 +770,11 @@ function tripal_map_show_map_chr_landingpage_form_ajax_callback($form, &$form_st
 		$form['landing_page']['toolbar']['map_select_frame']['map_chr']['select_map']['#default_value'] = $maps_key_t;
 		$form['landing_page']['toolbar']['map_select_frame']['map_chr']['select_chromosome']['#options'] = $chr[$org_key_t][$maps_key_t];
 		$form['landing_page']['toolbar']['map_select_frame']['map_chr']['select_chromosome']['#default_value'] = $chr_key_t;
-		
+
 	}
 
 	if ($form_state['triggering_element']['#name'] == 'select_map') {
-		
+
 		// update reference map key, and reference chr list and key in the form
 		$maps_key_t = $form_state['values']['select_map'];
 		$chr_key_t = key($chr[$org_key][$maps_key_t]);
@@ -782,9 +782,9 @@ function tripal_map_show_map_chr_landingpage_form_ajax_callback($form, &$form_st
 		$form['landing_page']['toolbar']['map_select_frame']['map_chr']['select_map']['#default_value'] = $maps_key_t;
 		$form['landing_page']['toolbar']['map_select_frame']['map_chr']['select_chromosome']['#options'] = $chr[$org_key][$maps_key_t];
 		$form['landing_page']['toolbar']['map_select_frame']['map_chr']['select_chromosome']['#default_value'] = $chr_key_t;
-		
+
 	}
-	
+
 	return $form;
 
 }
@@ -818,17 +818,17 @@ function tripal_map_show_org_map_form_ajax_callback($form, &$form_state) {
   $maps_comp =& $fs_storage['maps_all'];
   $cm_sec_org_key = $fs_storage['cm_sec_org_key'];
   $cm_sec_maps_key = $fs_storage['cm_sec_maps_key'];
-	
+
   // note: form state storage is updated in the form init code, not here.
   // This is too late for the form currently being loaded
   // to use the new form state storage values.
-	
+
   // =====================Primary/Reference=========================
   if ($form_state['triggering_element']['#name'] == 'select_organism_primary_cm') {
     // update reference form lists
     $org_key_t = $form_state['values']['select_organism_primary_cm'];
     $maps_key_t = key($maps[$org_key_t]);
-    
+
     // set the map for cm
     $form['correspondence_matrix']['organism_primary']['select_map_primary_cm']['#options'] = $maps[$org_key_t];
     $form['correspondence_matrix']['organism_primary']['select_map_primary_cm']['#default_value'] = $maps_key_t;
@@ -837,32 +837,32 @@ function tripal_map_show_org_map_form_ajax_callback($form, &$form_state) {
   if ($form_state['triggering_element']['#name'] == 'select_map_primary_cm') {
     // update reference map key, and reference chr list and key in the form
     $maps_key_t = $form_state['values']['select_map_primary_cm'];
-   
+
     $form['correspondence_matrix']['organism_primary']['select_map_primary_cm']['#default_value'] = $maps_key_t;
-    
+
   }
-	
+
   //============comparison================
   if ($form_state['triggering_element']['#name'] == 'select_organism_secondary_cm') {
-	
+
 	// update reference form lists
 	$cm_sec_org_key_t = $form_state['values']['select_organism_secondary_cm'];
 	$cm_sec_maps_key_t = key($maps[$cm_sec_org_key_t]);
-	
+
 	// set the map for cm
     $form['correspondence_matrix']['organism_secondary']['select_map_secondary_cm']['#options'] = $maps[$cm_sec_org_key_t];
     $form['correspondence_matrix']['organism_secondary']['select_map_secondary_cm']['#default_value'] = $cm_sec_maps_key_t;
-	
+
   }
-	
+
   if ($form_state['triggering_element']['#name'] == 'select_map_secondary_cm') {
     // show map or chr
   	$cm_sec_maps_key_t = $form_state['values']['select_map_secondary_cm'];
-  	 
+
     $form['correspondence_matrix']['organism_secondary']['select_map_secondary_cm']['#default_value'] = $cm_sec_maps_key_t;
 
   }
-	
+
   return $form;
 }
 
@@ -870,13 +870,13 @@ function tripal_map_show_org_map_form_ajax_callback($form, &$form_state) {
 /**
  * function: tripal_map_form_add_show_hide_bar
  *	 Add the toolbar to show or hide rulers and marker positions in the MapViewer form
- * 
+ *
  * @param $form
  *   The form to be initialized
  *
  * @param $form_state
  *   The current state of the form. The values and storage that were submitted
- *   
+ *
  * @return
  *   The form array for the MapViewer form.
  *
@@ -908,7 +908,7 @@ function tripal_map_form_add_show_hide_bar(&$form, &$form_state) {
   );
 
   $form['display_settings']['ds_frame']['show_hide_mapViewer']['submit_show_ruler_pos'] = array(
-    '#type' => 'submit', 
+    '#type' => 'submit',
     '#value' => t('Submit'),
     '#name' => t('Submit3'),
     '#attributes' => array('id' => 'submit_mapViewer_all'),
@@ -917,14 +917,14 @@ function tripal_map_form_add_show_hide_bar(&$form, &$form_state) {
     '#submit' => array('tripal_map_submit_rebuild_form_state'),
     '#after_build' => array('tripal_map_draw_mapViewer'),
   );
-  
+
   return $form;
-  
+
 }
 
 
 function tripal_map_attach_d3_lib(&$form) {
-  
+
   //$form['#attached']['js'][] = drupal_get_path('module', 'tripal_map') . '/theme/js/libraries/d3.v4.min.js';
   $form['#attached']['js'][] = drupal_get_path('module', 'tripal_map') . '/theme/js/libraries/d3v3.min.js';
   return $form;
