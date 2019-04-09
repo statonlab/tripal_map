@@ -1,3 +1,5 @@
+# 🚨 WARNING: this is a clone of the tripal_map module that is developed by the Main Bioinformatics Lab. [The original repository can be found here](https://gitlab.com/mainlabwsu/tripal_map)
+
 #  Contents 
  * Introduction
  * Requirements
