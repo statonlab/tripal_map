@@ -175,26 +175,45 @@ function tripal_map_create_QTL_and_MTL_mview() {
   );
 
   $sql = "
-  SELECT FM.name as map_name, FM.featuremap_id as map_id, FMP.value as map_type, F2.name as linkage_group, F2.feature_id as linkage_group_id,
-  F.uniquename as marker_locus_name, C1.name as map_unit_type, C.name as marker_type, C2.name as marker_pos_type, FPP.value as marker_pos,
-  O.organism_id as organism_id, O.genus as genus, O.species as species, O.common_name as common_name,
-  F.feature_id as feature_id, FPP.featurepos_id as featurepos_id
-  FROM {feature} F
-  INNER JOIN {cvterm} C						ON F.type_id = C.cvterm_id AND
-    C.cv_id = (SELECT cv_id FROM {cv} WHERE name = 'sequence') AND
-    ((C.name = 'QTL') OR (C.name = 'heritable_phenotypic_marker'))
-  INNER JOIN {featurepos} FP            		ON F.feature_id = FP.feature_id 
-  INNER JOIN {feature} F2 				    ON FP.map_feature_id = F2.feature_id
-  INNER JOIN {featuremapprop} FMP       ON FMP.featuremap_id = FP.featuremap_id AND
-    FMP.type_id = (SELECT cvterm_id FROM {cvterm} WHERE name = 'map_type' AND 
-    cv_id = (SELECT cv_id FROM {cv} WHERE name = 'MAIN'))
-  INNER JOIN {featuremap} FM       			ON FM.featuremap_id = FP.featuremap_id
-  INNER JOIN {cvterm} C1                    ON C1.cvterm_id = FM.unittype_id 
-  INNER JOIN {featuremap_organism} FMO 	    ON FMO.featuremap_id = FM.featuremap_id
-  INNER JOIN {featureposprop} FPP 			ON FPP.featurepos_id = FP.featurepos_id
-  INNER JOIN {cvterm} C2 					ON C2.cvterm_id = FPP.type_id
-  INNER JOIN {organism} O 				    ON FMO.organism_id = O.organism_id
-  INNER JOIN {feature_cvterm} FC            ON F.feature_id = FC.feature_id
+  SELECT FM.name as map_name,
+FM.featuremap_id as map_id,
+ FMP.value as map_type,
+  F3.name as linkage_group,
+F3.feature_id as linkage_group_id,
+F.uniquename as marker_locus_name,
+C1.name as map_unit_type,
+C2.name as marker_type,
+C4.name as marker_pos_type,
+FPP.value as marker_pos,
+O.organism_id as organism_id, O.genus as genus, O.species as species, O.common_name as common_name,
+F.feature_id as feature_id, FPP.featurepos_id as featurepos_id
+FROM {feature} F
+--F is the biological_region or parent marker locus
+INNER JOIN {feature_relationship} FR 	ON FR.subject_id = F.feature_id AND
+ F.type_id = (SELECT cvterm_id  FROM {cvterm} WHERE name = 'biological_region' AND
+ cv_id = (SELECT cv_id FROM cv WHERE name = 'sequence'))
+  AND
+ FR.type_id = (SELECT cvterm_id  FROM {cvterm} WHERE cvterm.name = 'instance_of' AND
+ cv_id = (SELECT cv_id FROM cv WHERE name = 'OBO_REL'))
+
+-- F2 is the marker feature itself
+INNER JOIN {feature} F2               	ON FR.object_id = F2.feature_id
+-- This mview is just for QTLs
+INNER JOIN {cvterm} C ON F2.type_id = C.cvterm_id AND (C.name = 'QTL' OR C.name = 'heritable_phenotypic_marker')
+INNER JOIN {featurepos} FP            	ON F2.feature_id = FP.feature_id
+INNER JOIN {featuremap} FM    		ON FM.featuremap_id = FP.featuremap_id
+INNER JOIN {cvterm} C1                ON C1.cvterm_id = FM.unittype_id
+-- C2 is the marker type term
+ INNER JOIN {cvterm} C2 ON C2.cvterm_id = F2.type_id
+INNER JOIN {featuremapprop} FMP       ON FMP.featuremap_id = FP.featuremap_id AND
+FMP.type_id = (SELECT cvterm_id FROM cvterm WHERE name = 'featuremap_type' AND
+cv_id = (SELECT cv_id FROM cv WHERE name = 'local'))
+INNER JOIN {featuremap_organism} FMO 	ON FMO.featuremap_id = FM.featuremap_id
+--F3 is the parent feature of the map ie the linkage group
+INNER JOIN {feature} F3 				ON FP.map_feature_id = F3.feature_id
+INNER JOIN {featureposprop} FPP 		ON FPP.featurepos_id = FP.featurepos_id
+INNER JOIN {organism} O 				ON FMO.organism_id = O.organism_id
+INNER JOIN {cvterm} C4  ON FPP.type_id = C4.cvterm_id
   ";
 
   // Create the MView
@@ -235,29 +254,30 @@ function tripal_map_create_genetic_marker_mview() {
 
   $sql = "
   SELECT F.uniquename as marker_locus_name, F.feature_id as marker_locus_id, F2.uniquename as genetic_marker_name,
-  C1.name as map_unit_type, FPR.value as marker_type, FM.name as map_name, FM.featuremap_id as map_id, FMP.value as map_type,
+  C1.name as map_unit_type, C2.name as marker_type, FM.name as map_name, FM.featuremap_id as map_id, FMP.value as map_type,
   F3.name as linkage_group, F3.feature_id as linkage_group_id, FPP.value as marker_pos, C.name as marker_pos_type,
   O.organism_id as organism_id, O.genus as genus, O.species as species, O.common_name as common_name
   FROM {feature} F
   INNER JOIN {feature_relationship} FR 	ON FR.subject_id = F.feature_id AND
-    F.type_id = (SELECT cvterm_id  FROM {cvterm} WHERE name = 'marker_locus' AND
-    cv_id = (SELECT cv_id FROM {cv} WHERE name = 'MAIN')) AND
+    F.type_id = (SELECT cvterm_id  FROM {cvterm} WHERE name = 'biological_region' AND
+    cv_id = (SELECT cv_id FROM {cv} WHERE name = 'sequence'))
+     AND
     FR.type_id = (SELECT cvterm_id  FROM {cvterm} WHERE {cvterm}.name = 'instance_of' AND
-    cv_id = (SELECT cv_id FROM {cv} WHERE name = 'relationship'))
-  INNER JOIN {feature} F2               	ON FR.object_id = F2.feature_id AND
-    F2.type_id = (SELECT cvterm_id FROM {cvterm} WHERE name = 'genetic_marker' AND
-    cv_id = (SELECT cv_id FROM {cv} WHERE name = 'sequence')) AND
+    cv_id = (SELECT cv_id FROM {cv} WHERE name = 'OBO_REL'))
+
+  INNER JOIN {feature} F2               	ON FR.object_id = F2.feature_id 
+     AND
     FR.type_id = (SELECT cvterm_id FROM {cvterm} WHERE name = 'instance_of' AND
-    cv_id = (SELECT cv_id FROM {cv} WHERE name = 'relationship'))
-  INNER JOIN {featurepos} FP            	ON F.feature_id = FP.feature_id
-  INNER JOIN {featureprop} FPR          	ON FPR.feature_id = F2.feature_id AND
-    FPR.type_id = (SELECT cvterm_id FROM {cvterm} WHERE name = 'marker_type' AND
-  	cv_id = (SELECT cv_id FROM {cv} WHERE name = 'MAIN'))
+    cv_id = (SELECT cv_id FROM {cv} WHERE name = 'OBO_REL'))
+    
+  INNER JOIN {featurepos} FP            	ON F2.feature_id = FP.feature_id
+  
   INNER JOIN {featuremap} FM    		ON FM.featuremap_id = FP.featuremap_id
-  INNER JOIN {cvterm} C1                ON C1.cvterm_id = FM.unittype_id 
+  INNER JOIN {cvterm} C1                ON C1.cvterm_id = FM.unittype_id
+  	INNER JOIN {cvterm} C2 ON C2.cvterm_id = F2.type_id
   INNER JOIN {featuremapprop} FMP       ON FMP.featuremap_id = FP.featuremap_id AND
-   FMP.type_id = (SELECT cvterm_id FROM {cvterm} WHERE name = 'map_type' AND 
-   cv_id = (SELECT cv_id FROM {cv} WHERE name = 'MAIN'))
+   FMP.type_id = (SELECT cvterm_id FROM {cvterm} WHERE name = 'featuremap_type' AND
+   cv_id = (SELECT cv_id FROM {cv} WHERE name = 'local'))
   INNER JOIN {featuremap_organism} FMO 	ON FMO.featuremap_id = FM.featuremap_id
   INNER JOIN {feature} F3 				ON FP.map_feature_id = F3.feature_id
   INNER JOIN {featureposprop} FPP 		ON FPP.featurepos_id = FP.featurepos_id
