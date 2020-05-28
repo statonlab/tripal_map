@@ -106,9 +106,9 @@ function tripal_map_bundle_instances_info($entity_type, $bundle) {
       'required' => FALSE,
       'settings' => array(
         'auto_attach' => FALSE,
-        'chado_table' => $chado_table,
-        'chado_column' => 'featuremap_id',
-        'base_table' => $base_table,
+        //'chado_table' => $chado_table,
+        //'chado_column' => 'featuremap_id',
+        //'base_table' => $base_table,
         'term_name' => 'mapviewer_overview',
         'term_accession' => 'mapviewer_overview',
         'term_vocabulary' => 'tripal_map',
@@ -151,9 +151,9 @@ function tripal_map_bundle_instances_info($entity_type, $bundle) {
   	  'required' => FALSE,
   	  'settings' => array(
   	  'auto_attach' => FALSE,
-  	  'chado_table' => $bundle->data_table,
-  	  'chado_column' => 'featuremap',
-  	  'base_table' => $bundle->data_table,
+  	  //'chado_table' => $bundle->data_table,
+  	  //'chado_column' => 'featuremap',
+  	  //'base_table' => $bundle->data_table,
   	),
   	  'widget' => array(
   	  'type' => 'tripal_map__mapviewer_mappos_widget',
